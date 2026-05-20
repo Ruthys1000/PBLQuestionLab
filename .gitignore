@@ -13,5 +13,8 @@ node_modules/
 # OS
 .DS_Store
 
+# TypeScript build cache
+*.tsbuildinfo
+
 # Logs
 *.log
