@@ -8,6 +8,7 @@ import {
   RotateCcw,
   Loader2,
   BookOpen,
+  RefreshCw,
 } from 'lucide-react'
 import type {
   AppMode,
@@ -17,7 +18,7 @@ import type {
   DiagnoseInput,
   ProjectBrief,
 } from '@/types'
-import { createProjectBrief } from '@/lib/apiClient'
+import { createProjectBrief, createQuestions } from '@/lib/apiClient'
 import GenerateForm from '@/components/GenerateForm'
 import DiagnoseForm from '@/components/DiagnoseForm'
 
@@ -30,6 +31,9 @@ function ResultsScreen({
   onGenerateBrief,
   briefLoading,
   briefError,
+  onGenerateAgain,
+  regenerateLoading,
+  regenerateError,
 }: {
   questions: BigQuestion[]
   selectedQuestion: BigQuestion | null
@@ -37,53 +41,75 @@ function ResultsScreen({
   onGenerateBrief: () => void
   briefLoading: boolean
   briefError: string | null
+  onGenerateAgain: () => void
+  regenerateLoading: boolean
+  regenerateError: string | null
 }) {
+  const q = questions[0]
+  if (!q) return null
+
+  const selected = selectedQuestion?.id === q.id
+
   return (
     <div className="space-y-4">
-      <p className="text-sm text-slate-400">
-        נמצאו {questions.length} שאלות מנחות — בחרי שאלה לצפייה ויצירת תיק פרויקט
-      </p>
 
-      <div className="space-y-3">
-        {questions.map((q) => {
-          const selected = selectedQuestion?.id === q.id
-          return (
-            <button
-              key={q.id}
-              type="button"
-              onClick={() => onSelectQuestion(q)}
-              className={
-                'w-full text-start p-4 rounded-xl border transition-all duration-150 ' +
-                (selected
-                  ? 'border-violet-500 bg-slate-800 shadow-lg shadow-violet-500/20'
-                  : 'border-slate-700 bg-slate-800 hover:border-slate-500')
-              }
-            >
-              <div className="flex items-start justify-between gap-3">
-                <p className="text-sm font-medium text-white leading-relaxed">{q.question}</p>
-                <span className={
-                  'shrink-0 text-xs font-semibold rounded-full px-2 py-0.5 ' +
-                  (selected
-                    ? 'bg-violet-500/20 text-violet-300'
-                    : 'bg-slate-700 text-slate-400')
-                }>
-                  {q.stress_test.overall_score.toFixed(1)}
-                </span>
-              </div>
-              {selected && q.why_it_works && (
-                <p className="mt-2 text-xs text-slate-400 leading-relaxed">{q.why_it_works}</p>
-              )}
-            </button>
-          )
-        })}
-      </div>
+      {/* The question card */}
+      <button
+        type="button"
+        onClick={() => onSelectQuestion(q)}
+        className={
+          'w-full text-start p-4 rounded-xl border transition-all duration-150 ' +
+          (selected
+            ? 'border-violet-500 bg-slate-800 shadow-lg shadow-violet-500/20'
+            : 'border-slate-700 bg-slate-800 hover:border-slate-500')
+        }
+      >
+        <div className="flex items-start justify-between gap-3">
+          <p className="text-sm font-medium text-white leading-relaxed">{q.question}</p>
+          <span className={
+            'shrink-0 text-xs font-semibold rounded-full px-2 py-0.5 ' +
+            (selected
+              ? 'bg-violet-500/20 text-violet-300'
+              : 'bg-slate-700 text-slate-400')
+          }>
+            {q.stress_test.overall_score.toFixed(1)}
+          </span>
+        </div>
+        {selected && q.why_it_works && (
+          <p className="mt-2 text-xs text-slate-400 leading-relaxed">{q.why_it_works}</p>
+        )}
+      </button>
 
-      {selectedQuestion && (
-        <div className="space-y-2">
+      {/* Try again */}
+      <button
+        type="button"
+        onClick={onGenerateAgain}
+        disabled={regenerateLoading || briefLoading}
+        className="w-full py-2.5 rounded-xl border border-slate-700 bg-slate-800/50 text-sm text-slate-400 hover:border-slate-500 hover:text-slate-200 disabled:opacity-40 transition-all flex items-center justify-center gap-2"
+      >
+        {regenerateLoading ? (
+          <>
+            <Loader2 className="w-4 h-4 animate-spin" strokeWidth={1.5} />
+            מייצר שאלה חדשה...
+          </>
+        ) : (
+          <>
+            <RefreshCw className="w-4 h-4" strokeWidth={1.5} />
+            נסה שאלה אחרת
+          </>
+        )}
+      </button>
+      {regenerateError && (
+        <p className="text-xs text-rose-400 text-center">{regenerateError}</p>
+      )}
+
+      {/* Generate brief */}
+      {selected && (
+        <div className="space-y-2 pt-1">
           <button
             type="button"
             onClick={onGenerateBrief}
-            disabled={briefLoading}
+            disabled={briefLoading || regenerateLoading}
             className={
               'w-full inline-flex items-center justify-center gap-2 py-3 rounded-xl text-base font-medium transition-all duration-150 ' +
               (briefLoading
@@ -99,7 +125,7 @@ function ResultsScreen({
             ) : (
               <>
                 <BookOpen className="w-5 h-5" strokeWidth={1.5} />
-                צור תיק פרויקט לשאלה הנבחרת
+                צור תיק פרויקט לשאלה זו
               </>
             )}
           </button>
@@ -358,6 +384,8 @@ export default function HomePage() {
   const [showConfirm, setShowConfirm] = useState(false)
   const [briefLoading, setBriefLoading] = useState(false)
   const [briefError, setBriefError] = useState<string | null>(null)
+  const [regenerateLoading, setRegenerateLoading] = useState(false)
+  const [regenerateError, setRegenerateError] = useState<string | null>(null)
 
   function resetAll() {
     setMode('home')
@@ -371,6 +399,8 @@ export default function HomePage() {
     setShowConfirm(false)
     setBriefLoading(false)
     setBriefError(null)
+    setRegenerateLoading(false)
+    setRegenerateError(null)
   }
 
   function goBack() {
@@ -399,6 +429,23 @@ export default function HomePage() {
       setBriefError(err instanceof Error ? err.message : 'שגיאה ביצירת תיק פרויקט')
     } finally {
       setBriefLoading(false)
+    }
+  }
+
+  async function handleGenerateAgain() {
+    if (!formInput) return
+    setRegenerateLoading(true)
+    setRegenerateError(null)
+    setSelectedQuestion(null)
+    try {
+      const { questions: qs, mockMode: m } = await createQuestions(formInput)
+      setQuestions(qs)
+      setMockMode(m)
+      if (qs[0]) setSelectedQuestion(qs[0])
+    } catch (err) {
+      setRegenerateError(err instanceof Error ? err.message : 'שגיאה')
+    } finally {
+      setRegenerateLoading(false)
     }
   }
 
@@ -512,6 +559,7 @@ export default function HomePage() {
                 setQuestions(qs)
                 setFormInput(input)
                 setMockMode(mock)
+                if (qs[0]) setSelectedQuestion(qs[0])
                 setMode('results')
               }}
             />
@@ -536,7 +584,7 @@ export default function HomePage() {
         {mode === 'results' && questions.length > 0 && (
           <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6 md:p-8">
             <div className="pb-4 border-b border-slate-800 mb-6">
-              <h2 className="text-lg font-bold text-white">שאלות מנחות שנוצרו</h2>
+              <h2 className="text-lg font-bold text-white">השאלה המנחה שלך</h2>
             </div>
             <ResultsScreen
               questions={questions}
@@ -545,6 +593,9 @@ export default function HomePage() {
               onGenerateBrief={() => void handleGenerateBrief()}
               briefLoading={briefLoading}
               briefError={briefError}
+              onGenerateAgain={() => void handleGenerateAgain()}
+              regenerateLoading={regenerateLoading}
+              regenerateError={regenerateError}
             />
           </div>
         )}
