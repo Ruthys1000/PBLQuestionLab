@@ -74,12 +74,22 @@ export default function DiagnoseForm({ onSuccess }: Props) {
   const [loadingMsgIdx, setLoadingMsgIdx] = useState(0)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [customSubjectInput, setCustomSubjectInput] = useState('')
+  const [progress, setProgress] = useState(0)
 
   useEffect(() => {
     if (!loading) return
     const id = setInterval(() => {
       setLoadingMsgIdx((i) => (i + 1) % LOADING_MESSAGES.length)
     }, 2000)
+    return () => clearInterval(id)
+  }, [loading])
+
+  useEffect(() => {
+    if (!loading) { setProgress(0); return }
+    setProgress(5)
+    const id = setInterval(() => {
+      setProgress((p) => p + (90 - p) * 0.07)
+    }, 350)
     return () => clearInterval(id)
   }, [loading])
 
@@ -130,6 +140,7 @@ export default function DiagnoseForm({ onSuccess }: Props) {
     setLoadingMsgIdx(0)
     try {
       const { diagnosis, mockMode } = await diagnoseExistingQuestion(form)
+      setProgress(100)
       onSuccess(diagnosis, mockMode, form)
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : 'שגיאה לא ידועה')
@@ -347,6 +358,19 @@ export default function DiagnoseForm({ onSuccess }: Props) {
             </>
           )}
         </button>
+
+        {/* Progress bar */}
+        {loading && (
+          <div className="space-y-1.5">
+            <div className="h-1.5 w-full bg-slate-700 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-violet-500 to-indigo-400 rounded-full transition-all duration-300 ease-out"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+            <p className="text-xs text-slate-500 text-center">{Math.round(progress)}%</p>
+          </div>
+        )}
 
         {submitError && (
           <div className="rounded-xl border border-rose-700/50 bg-rose-900/30 px-4 py-3 flex items-start justify-between gap-3">
