@@ -31,6 +31,24 @@ import GenerateForm from '@/components/GenerateForm'
 import DiagnoseForm from '@/components/DiagnoseForm'
 import Toast from '@/components/Toast'
 
+function SiteFooter() {
+  return (
+    <footer className="no-print mt-10 pb-8 text-center">
+      <div className="border-t border-slate-800/50 pt-6">
+        <p className="text-xs text-slate-600">
+          פותח על ידי{' '}
+          <a
+            href="mailto:ruthy.salomon@gmail.com"
+            className="text-slate-500 hover:text-violet-400 transition-colors"
+          >
+            רותי סלומון
+          </a>
+        </p>
+      </div>
+    </footer>
+  )
+}
+
 const BRIEF_LOADING_MESSAGES = [
   'בונה את מבנה הפרויקט...',
   'מגדיר מטרות למידה מדידות...',
@@ -1051,6 +1069,7 @@ export default function HomePage() {
           </div>
 
         </div>
+        <SiteFooter />
       </main>
     )
   }
@@ -1198,6 +1217,8 @@ export default function HomePage() {
           </div>
         )}
       </div>
+
+      <SiteFooter />
 
       {showConfirm && (
         <ConfirmDialog
