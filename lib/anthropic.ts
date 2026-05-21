@@ -22,7 +22,7 @@ function getClient(): Anthropic {
 async function callClaude(systemPrompt: string, userMessage: string): Promise<string> {
   const client = getClient()
   const response = await client.messages.create({
-    model: 'claude-opus-4-7',
+    model: 'claude-sonnet-4-6',
     max_tokens: 8192,
     system: systemPrompt,
     messages: [{ role: 'user', content: userMessage }],

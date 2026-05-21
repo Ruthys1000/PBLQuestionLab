@@ -406,32 +406,45 @@ export default function HomePage() {
 
   if (mode === 'home') {
     return (
-      <main className="min-h-screen bg-slate-950 flex flex-col items-center justify-center px-6">
+      <main className="min-h-screen bg-slate-950 flex flex-col items-center justify-center px-6 py-16">
         <div className="w-full max-w-2xl text-center space-y-10">
+
+          {/* Icon */}
           <div className="flex justify-center">
-            <div className="p-4 rounded-2xl bg-violet-500/10 border border-violet-500/20 shadow-lg shadow-violet-500/20">
-              <FlaskConical className="w-10 h-10 text-violet-400" strokeWidth={1.5} />
+            <div className="p-5 rounded-2xl bg-violet-500/10 border border-violet-500/20 shadow-2xl shadow-violet-500/20">
+              <FlaskConical className="w-12 h-12 text-violet-400" strokeWidth={1.5} />
             </div>
           </div>
 
-          <div className="space-y-4">
-            <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight bg-gradient-to-r from-violet-400 via-indigo-400 to-cyan-400 bg-clip-text text-transparent">
+          {/* Text */}
+          <div className="space-y-5">
+            <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight bg-gradient-to-r from-violet-400 via-indigo-400 to-cyan-400 bg-clip-text text-transparent leading-tight pb-1">
               PBL Question Lab
             </h1>
-            <p className="text-xl font-medium text-slate-300 leading-relaxed">
-              הופכים נושא לימודי לשאלת PBL שאי אפשר לפתור עם תשובה מגוגל.
+            <p className="text-xl md:text-2xl font-semibold text-white leading-relaxed">
+              שאלות שאי אפשר לפתור ב-ChatGPT.
             </p>
-            <p className="text-base text-slate-500 leading-relaxed max-w-xl mx-auto">
-              PBL Question Lab עוזר למורים לבנות, לבדוק ולשפר שאלות גדולות שמחזיקות חקר,
-              דילמה, תוכן ותוצר משמעותי.
+            <p className="text-base text-slate-400 leading-relaxed max-w-lg mx-auto">
+              כלי AI שעוזר למורים לבנות שאלות מנחות שמחייבות חקר אמיתי —
+              עם מתח, דילמה ותוצר משמעותי.
             </p>
+
+            {/* Feature pills */}
+            <div className="flex flex-wrap justify-center gap-2 pt-1">
+              {['✦ יוצר שאלות חדשות', '✦ מאבחן שאלות קיימות', '✦ בונה תיק פרויקט מלא'].map((f) => (
+                <span key={f} className="text-xs font-medium text-slate-400 bg-slate-800/80 border border-slate-700 px-3 py-1.5 rounded-full">
+                  {f}
+                </span>
+              ))}
+            </div>
           </div>
 
+          {/* CTAs */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
               type="button"
               onClick={() => setMode('generate')}
-              className="inline-flex items-center gap-2 justify-center px-6 py-3 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-base font-medium shadow-lg shadow-violet-500/25 transition-all duration-150"
+              className="inline-flex items-center gap-2 justify-center px-7 py-3.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-base font-semibold shadow-lg shadow-violet-500/25 transition-all duration-150"
             >
               <FlaskConical className="w-5 h-5" strokeWidth={1.5} />
               צור שאלות PBL
@@ -439,7 +452,7 @@ export default function HomePage() {
             <button
               type="button"
               onClick={() => setMode('diagnose')}
-              className="inline-flex items-center gap-2 justify-center px-6 py-3 rounded-xl bg-slate-800 border border-slate-700 text-slate-200 text-base font-medium hover:border-slate-500 hover:text-white transition-colors duration-150"
+              className="inline-flex items-center gap-2 justify-center px-7 py-3.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-200 text-base font-medium hover:border-violet-500/50 hover:text-white transition-all duration-150"
             >
               <Search className="w-5 h-5" strokeWidth={1.5} />
               אבחן שאלה קיימת
