@@ -66,7 +66,7 @@ const errorCls = 'text-red-500 text-xs mt-1'
 // ─── Props ────────────────────────────────────────────────────────────────────
 
 interface Props {
-  onSuccess: (questions: BigQuestion[], mockMode: boolean) => void
+  onSuccess: (questions: BigQuestion[], mockMode: boolean, input: FormInput) => void
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -120,7 +120,7 @@ export default function GenerateForm({ onSuccess }: Props) {
     setLoadingMsgIdx(0)
     try {
       const { questions, mockMode } = await createQuestions(form)
-      onSuccess(questions, mockMode)
+      onSuccess(questions, mockMode, form)
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : 'שגיאה לא ידועה')
     } finally {

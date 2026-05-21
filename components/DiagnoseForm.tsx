@@ -61,7 +61,7 @@ const errorCls = 'text-red-500 text-xs mt-1'
 // ─── Props ────────────────────────────────────────────────────────────────────
 
 interface Props {
-  onSuccess: (diagnosis: DiagnosisResult, mockMode: boolean) => void
+  onSuccess: (diagnosis: DiagnosisResult, mockMode: boolean, input: DiagnoseInput) => void
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -116,7 +116,7 @@ export default function DiagnoseForm({ onSuccess }: Props) {
     setLoadingMsgIdx(0)
     try {
       const { diagnosis, mockMode } = await diagnoseExistingQuestion(form)
-      onSuccess(diagnosis, mockMode)
+      onSuccess(diagnosis, mockMode, form)
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : 'שגיאה לא ידועה')
     } finally {
