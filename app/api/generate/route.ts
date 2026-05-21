@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import type { FormInput } from '@/types'
 import { generateQuestions } from '@/lib/anthropic'
 
+export const maxDuration = 60
+
 export async function POST(req: NextRequest) {
   let input: FormInput
   try {

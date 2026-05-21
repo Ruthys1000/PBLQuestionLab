@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import type { DiagnoseInput } from '@/types'
 import { diagnoseQuestion } from '@/lib/anthropic'
 
+export const maxDuration = 60
+
 export async function POST(req: NextRequest) {
   let input: DiagnoseInput
   try {

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import type { BigQuestion, FormInput, DiagnoseInput } from '@/types'
 import { generateProjectBrief } from '@/lib/anthropic'
 
+export const maxDuration = 60
+
 interface BriefRequestBody {
   selectedQuestion: BigQuestion
   originalInput: FormInput | DiagnoseInput

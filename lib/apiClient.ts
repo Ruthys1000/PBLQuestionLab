@@ -10,19 +10,31 @@ async function postJSON<T>(url: string, body: unknown): Promise<T> {
   let res: Response
   let data: Record<string, unknown>
 
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), 55_000)
+
   try {
     res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
+      signal: controller.signal,
     })
   } catch (err) {
+    if (err instanceof DOMException && err.name === 'AbortError') {
+      throw new Error('הבקשה ארכה זמן רב מדי — נסי שוב, לפעמים Claude זקוק לכמה שניות נוספות')
+    }
     throw new Error(`שגיאת רשת: לא ניתן להתחבר לשרת. ${err instanceof Error ? err.message : ''}`)
+  } finally {
+    clearTimeout(timeoutId)
   }
 
   try {
     data = await res.json() as Record<string, unknown>
   } catch {
+    if (res.status === 504 || res.status === 524) {
+      throw new Error('הבקשה ארכה זמן רב מדי — נסי שוב, לפעמים Claude זקוק לכמה שניות נוספות')
+    }
     throw new Error(`שגיאת שרת ${res.status}: התגובה אינה JSON תקני`)
   }
 

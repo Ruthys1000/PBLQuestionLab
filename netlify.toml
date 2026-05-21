@@ -3,7 +3,7 @@
   publish = ".next"
 
 [functions]
-  timeout = 26
+  timeout = 60
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
