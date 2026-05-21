@@ -7,16 +7,29 @@ import type {
 } from '@/types'
 
 async function postJSON<T>(url: string, body: unknown): Promise<T> {
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  })
+  let res: Response
+  let data: Record<string, unknown>
 
-  const data = await res.json() as Record<string, unknown>
+  try {
+    res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+  } catch (err) {
+    throw new Error(`שגיאת רשת: לא ניתן להתחבר לשרת. ${err instanceof Error ? err.message : ''}`)
+  }
+
+  try {
+    data = await res.json() as Record<string, unknown>
+  } catch {
+    throw new Error(`שגיאת שרת ${res.status}: התגובה אינה JSON תקני`)
+  }
 
   if (!res.ok) {
-    const message = typeof data.error === 'string' ? data.error : 'שגיאה בלתי צפויה'
+    const message = typeof data.error === 'string'
+      ? data.error
+      : `שגיאת שרת ${res.status}: ${JSON.stringify(data)}`
     throw new Error(message)
   }
 
