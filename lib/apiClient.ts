@@ -11,7 +11,7 @@ async function postJSON<T>(url: string, body: unknown): Promise<T> {
   let data: Record<string, unknown>
 
   const controller = new AbortController()
-  const timeoutId = setTimeout(() => controller.abort(), 55_000)
+  const timeoutId = setTimeout(() => controller.abort(), 120_000)
 
   try {
     res = await fetch(url, {
