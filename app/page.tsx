@@ -5,6 +5,7 @@ import {
   FlaskConical,
   Search,
   ChevronRight,
+  ChevronLeft,
   ChevronDown,
   ChevronUp,
   RotateCcw,
@@ -124,6 +125,54 @@ function CopyButton({ text, label = 'העתק' }: { text: string; label?: string
         : <Copy className="w-4 h-4" strokeWidth={1.5} />
       }
     </button>
+  )
+}
+
+// ─── Step indicator ──────────────────────────────────────────────────────────
+
+const GENERATE_STEPS = ['מלא פרטים', 'בחר שאלה', 'תיק פרויקט']
+const DIAGNOSE_STEPS = ['מלא פרטים', 'תוצאות אבחון', 'תיק פרויקט']
+
+function StepIndicator({ mode, isGenerateFlow }: { mode: AppMode; isGenerateFlow: boolean }) {
+  const steps = isGenerateFlow ? GENERATE_STEPS : DIAGNOSE_STEPS
+  const currentStep =
+    mode === 'generate' || mode === 'diagnose' ? 1
+    : mode === 'results' || mode === 'diagnosis' ? 2
+    : 3
+
+  return (
+    <div className="no-print border-b border-slate-800/60 bg-slate-950">
+      <div className="max-w-3xl mx-auto px-6 py-3">
+        <div className="flex items-center justify-center" dir="ltr">
+          {steps.map((step, i) => {
+            const num = i + 1
+            const done = num < currentStep
+            const active = num === currentStep
+            return (
+              <div key={step} className="flex items-center">
+                {i > 0 && (
+                  <div className={`h-px w-8 sm:w-14 mx-1 ${num <= currentStep ? 'bg-violet-600' : 'bg-slate-700'}`} />
+                )}
+                <div className="flex flex-col items-center gap-1">
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
+                    done ? 'bg-violet-600 text-white' :
+                    active ? 'bg-violet-600/20 border-2 border-violet-500 text-violet-300' :
+                    'bg-slate-800 border border-slate-700 text-slate-600'
+                  }`}>
+                    {done ? <Check className="w-3 h-3" strokeWidth={3} /> : num}
+                  </div>
+                  <span className={`text-[10px] font-medium whitespace-nowrap ${
+                    active ? 'text-white' : done ? 'text-slate-400' : 'text-slate-600'
+                  }`}>
+                    {step}
+                  </span>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </div>
   )
 }
 
@@ -762,45 +811,156 @@ export default function HomePage() {
 
   if (mode === 'home') {
     return (
-      <main className="min-h-screen bg-slate-950 flex flex-col items-center justify-center px-6 py-16">
-        <div className="w-full max-w-2xl text-center space-y-10">
+      <main className="min-h-screen bg-slate-950 flex flex-col items-center px-6 py-16">
+        <div className="w-full max-w-4xl space-y-14">
 
-          {/* Icon */}
-          <div className="flex justify-center">
-            <div className="p-5 rounded-2xl bg-violet-500/10 border border-violet-500/20 shadow-2xl shadow-violet-500/20">
-              <FlaskConical className="w-12 h-12 text-violet-400" strokeWidth={1.5} />
+          {/* Hero */}
+          <div className="text-center space-y-6">
+            <div className="flex justify-center">
+              <div className="p-5 rounded-2xl bg-violet-500/10 border border-violet-500/20 shadow-2xl shadow-violet-500/20">
+                <FlaskConical className="w-12 h-12 text-violet-400" strokeWidth={1.5} />
+              </div>
+            </div>
+            <div className="space-y-3">
+              <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight bg-gradient-to-r from-violet-400 via-indigo-400 to-cyan-400 bg-clip-text text-transparent leading-tight pb-1">
+                PBL Question Lab
+              </h1>
+              <p className="text-xl md:text-2xl font-semibold text-white leading-relaxed">
+                שאלות שאי אפשר לפתור ב-ChatGPT.
+              </p>
+              <p className="text-base text-slate-400 leading-relaxed max-w-xl mx-auto">
+                כלי AI שעוזר למורים לבנות שאלות מנחות שמחייבות חקר אמיתי —
+                עם מתח, דילמה ותוצר משמעותי.
+              </p>
             </div>
           </div>
 
-          {/* Text */}
-          <div className="space-y-5">
-            <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight bg-gradient-to-r from-violet-400 via-indigo-400 to-cyan-400 bg-clip-text text-transparent leading-tight pb-1">
-              PBL Question Lab
-            </h1>
-            <p className="text-xl md:text-2xl font-semibold text-white leading-relaxed">
-              שאלות שאי אפשר לפתור ב-ChatGPT.
-            </p>
-            <p className="text-base text-slate-300 leading-relaxed max-w-lg mx-auto">
-              כלי AI שעוזר למורים לבנות שאלות מנחות שמחייבות חקר אמיתי —
-              עם מתח, דילמה ותוצר משמעותי.
-            </p>
-
-            {/* Feature pills */}
-            <div className="flex flex-wrap justify-center gap-2 pt-1">
-              {['✦ יוצר שאלות חדשות', '✦ מאבחן שאלות קיימות', '✦ בונה תיק פרויקט מלא'].map((f) => (
-                <span key={f} className="text-xs font-medium text-slate-400 bg-slate-800/80 border border-slate-700 px-3 py-1.5 rounded-full">
-                  {f}
-                </span>
+          {/* How it works */}
+          <div className="text-center space-y-6">
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest">איך זה עובד</p>
+            <div className="flex items-start justify-center gap-1" dir="ltr">
+              {[
+                { num: 1, title: 'מלא פרטים', desc: 'נושא, כיתה, מקצועות, רמת אתגר' },
+                { num: 2, title: 'קבל שאלה מנחה', desc: 'עם ניקוד ב-10 קריטריונים PBL' },
+                { num: 3, title: 'תיק פרויקט מלא', desc: 'שלבי חקירה, רובריקה ומטרות' },
+              ].map((step, i) => (
+                <div key={step.num} className="flex items-start">
+                  {i > 0 && (
+                    <ChevronRight className="w-5 h-5 text-slate-600 mt-4 shrink-0 mx-1" strokeWidth={1.5} />
+                  )}
+                  <div className="flex flex-col items-center text-center w-28 sm:w-36 gap-2">
+                    <div className="w-9 h-9 rounded-full bg-violet-600/20 border border-violet-500/40 flex items-center justify-center text-violet-300 text-sm font-bold">
+                      {step.num}
+                    </div>
+                    <p className="text-sm font-semibold text-white leading-snug">{step.title}</p>
+                    <p className="text-xs text-slate-500 leading-snug">{step.desc}</p>
+                  </div>
+                </div>
               ))}
             </div>
           </div>
 
+          {/* Feature cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+            {/* Card 1 — שאלה מנחה */}
+            <div className="bg-slate-900 border border-violet-500/20 rounded-xl p-5 space-y-4">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-lg bg-violet-500/10 shrink-0">
+                  <FlaskConical className="w-4 h-4 text-violet-400" strokeWidth={1.5} />
+                </div>
+                <h3 className="text-sm font-bold text-white">שאלה מנחה חדשה</h3>
+              </div>
+              <ul className="space-y-2">
+                {['ניקוד כן ב-10 קריטריונים PBL', 'חוזקות וחולשות ספציפיות', 'שאלות משנה לחקירה', '2 ניסוחים חלופיים'].map((item) => (
+                  <li key={item} className="flex items-start gap-2 text-xs text-slate-400">
+                    <span className="text-violet-400 shrink-0 mt-0.5">✓</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              {/* Mini stress test preview */}
+              <div className="space-y-2 pt-3 border-t border-slate-800">
+                <p className="text-[10px] text-slate-600 uppercase tracking-wider">דוגמה לניקוד</p>
+                {([['פתוח לפרשנות', 8, 'emerald'], ['אותנטיות', 6, 'amber'], ['מתח / דילמה', 3, 'rose']] as const).map(([label, score, color]) => (
+                  <div key={label} className="flex items-center gap-2" dir="ltr">
+                    <div className="flex-1 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full rounded-full ${color === 'emerald' ? 'bg-emerald-500' : color === 'amber' ? 'bg-amber-500' : 'bg-rose-500'}`}
+                        style={{ width: `${score * 10}%` }}
+                      />
+                    </div>
+                    <span className={`text-[10px] font-bold w-5 text-start shrink-0 ${color === 'emerald' ? 'text-emerald-400' : color === 'amber' ? 'text-amber-400' : 'text-rose-400'}`}>
+                      {score}
+                    </span>
+                    <span className="text-[10px] text-slate-500 w-24 text-start shrink-0">{label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Card 2 — אבחון */}
+            <div className="bg-slate-900 border border-indigo-500/20 rounded-xl p-5 space-y-4">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-lg bg-indigo-500/10 shrink-0">
+                  <Search className="w-4 h-4 text-indigo-400" strokeWidth={1.5} />
+                </div>
+                <h3 className="text-sm font-bold text-white">אבחון שאלה קיימת</h3>
+              </div>
+              <ul className="space-y-2">
+                {['מה עובד ומה לא, ולמה', 'השפעה בפועל על הכיתה', 'כיוון מדויק לשיפור', '2 ניסוחים משופרים מנומקים'].map((item) => (
+                  <li key={item} className="flex items-start gap-2 text-xs text-slate-400">
+                    <span className="text-indigo-400 shrink-0 mt-0.5">✓</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <div className="pt-3 border-t border-slate-800 space-y-2">
+                <div className="bg-rose-900/20 border border-rose-700/30 rounded-lg p-3">
+                  <p className="text-[10px] text-rose-400 font-semibold mb-1">מה לא עובד</p>
+                  <p className="text-[10px] text-slate-500 leading-relaxed">שאלה סגורה שניתן לפתור ב-ChatGPT ללא חשיבה עצמאית</p>
+                </div>
+                <div className="bg-emerald-900/20 border border-emerald-700/30 rounded-lg p-3">
+                  <p className="text-[10px] text-emerald-400 font-semibold mb-1">כיוון לשיפור</p>
+                  <p className="text-[10px] text-slate-500 leading-relaxed">הוסף דילמה ועמדה שדורשת הכרעה ערכית</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Card 3 — תיק פרויקט */}
+            <div className="bg-slate-900 border border-cyan-500/20 rounded-xl p-5 space-y-4">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-lg bg-cyan-500/10 shrink-0">
+                  <BookOpen className="w-4 h-4 text-cyan-400" strokeWidth={1.5} />
+                </div>
+                <h3 className="text-sm font-bold text-white">תיק פרויקט מלא</h3>
+              </div>
+              <ul className="space-y-2">
+                {['מטרות למידה מדידות', '4–6 שלבי חקירה מפורטים', 'רובריקת הערכה 3 רמות', 'בידול: תמיכה והעשרה'].map((item) => (
+                  <li key={item} className="flex items-start gap-2 text-xs text-slate-400">
+                    <span className="text-cyan-400 shrink-0 mt-0.5">✓</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <div className="pt-3 border-t border-slate-800 space-y-1.5">
+                <p className="text-[10px] text-slate-600 uppercase tracking-wider">מה מוגדר בתיק</p>
+                {['שם ושאלה מנחה', 'תכנים ומיומנויות', 'פעילות פתיחה', 'תוצרים לקהל אמיתי'].map((item) => (
+                  <div key={item} className="flex items-center gap-2">
+                    <div className="w-1 h-1 rounded-full bg-cyan-600 shrink-0" />
+                    <span className="text-[10px] text-slate-500">{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
           {/* CTAs */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center pb-4">
             <button
               type="button"
               onClick={() => setMode('generate')}
-              className="inline-flex items-center gap-2 justify-center px-7 py-3.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-base font-semibold shadow-lg shadow-violet-500/25 transition-all duration-150"
+              className="inline-flex items-center gap-2 justify-center px-8 py-4 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-base font-semibold shadow-lg shadow-violet-500/25 transition-all duration-150"
             >
               <FlaskConical className="w-5 h-5" strokeWidth={1.5} />
               צור שאלות PBL
@@ -808,12 +968,13 @@ export default function HomePage() {
             <button
               type="button"
               onClick={() => setMode('diagnose')}
-              className="inline-flex items-center gap-2 justify-center px-7 py-3.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-200 text-base font-medium hover:border-violet-500/50 hover:text-white transition-all duration-150"
+              className="inline-flex items-center gap-2 justify-center px-8 py-4 rounded-xl bg-slate-800 border border-slate-700 text-slate-200 text-base font-medium hover:border-violet-500/50 hover:text-white transition-all duration-150"
             >
               <Search className="w-5 h-5" strokeWidth={1.5} />
               אבחן שאלה קיימת
             </button>
           </div>
+
         </div>
       </main>
     )
@@ -823,6 +984,7 @@ export default function HomePage() {
 
   const showRestart = mode === 'results' || mode === 'diagnosis' || mode === 'brief'
   const isWide = mode === 'results' || mode === 'diagnosis' || mode === 'brief'
+  const isGenerateFlow = mode === 'generate' || mode === 'results' || (mode === 'brief' && formInput !== null)
 
   return (
     <main className="min-h-screen bg-slate-950">
@@ -856,6 +1018,9 @@ export default function HomePage() {
           )}
         </div>
       </div>
+
+      {/* Step indicator */}
+      <StepIndicator mode={mode} isGenerateFlow={isGenerateFlow} />
 
       {/* Content */}
       <div className={`mx-auto px-6 py-8 ${isWide ? 'max-w-3xl' : 'max-w-2xl'}`}>
