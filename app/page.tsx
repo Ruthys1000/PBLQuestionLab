@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   FlaskConical,
   Search,
@@ -30,6 +30,15 @@ import { createProjectBrief, createQuestions } from '@/lib/apiClient'
 import GenerateForm from '@/components/GenerateForm'
 import DiagnoseForm from '@/components/DiagnoseForm'
 import Toast from '@/components/Toast'
+
+const BRIEF_LOADING_MESSAGES = [
+  'בונה את מבנה הפרויקט...',
+  'מגדיר מטרות למידה מדידות...',
+  'מעצב שלבי חקירה...',
+  'בונה רובריקה פדגוגית...',
+  'מכין חוויית פתיחה...',
+  'מסיים את תיק הפרויקט...',
+]
 
 // ─── Stress test ──────────────────────────────────────────────────────────────
 
@@ -185,6 +194,8 @@ function ResultsScreen({
   onGenerateBrief,
   briefLoading,
   briefError,
+  briefProgress,
+  briefMsgIdx,
   onGenerateAgain,
   regenerateLoading,
   regenerateError,
@@ -195,6 +206,8 @@ function ResultsScreen({
   onGenerateBrief: () => void
   briefLoading: boolean
   briefError: string | null
+  briefProgress: number
+  briefMsgIdx: number
   onGenerateAgain: () => void
   regenerateLoading: boolean
   regenerateError: string | null
@@ -388,6 +401,20 @@ function ResultsScreen({
               </>
             )}
           </button>
+
+          {briefLoading && (
+            <div className="space-y-2 mt-1">
+              <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-violet-500 to-indigo-500 rounded-full transition-all duration-300"
+                  style={{ width: `${briefProgress}%` }}
+                />
+              </div>
+              <p className="text-xs text-slate-400 text-center">
+                {BRIEF_LOADING_MESSAGES[briefMsgIdx]}
+              </p>
+            </div>
+          )}
 
           {briefError && (
             <div className="rounded-xl border border-rose-700/50 bg-rose-900/30 px-4 py-3">
@@ -735,9 +762,28 @@ export default function HomePage() {
   const [showConfirm, setShowConfirm] = useState(false)
   const [briefLoading, setBriefLoading] = useState(false)
   const [briefError, setBriefError] = useState<string | null>(null)
+  const [briefProgress, setBriefProgress] = useState(0)
+  const [briefMsgIdx, setBriefMsgIdx] = useState(0)
   const [regenerateLoading, setRegenerateLoading] = useState(false)
   const [regenerateError, setRegenerateError] = useState<string | null>(null)
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' } | null>(null)
+
+  useEffect(() => {
+    window.scrollTo({ top: 0 })
+  }, [mode])
+
+  useEffect(() => {
+    if (!briefLoading) return
+    const id = setInterval(() => setBriefMsgIdx(i => (i + 1) % BRIEF_LOADING_MESSAGES.length), 2000)
+    return () => clearInterval(id)
+  }, [briefLoading])
+
+  useEffect(() => {
+    if (!briefLoading) { setBriefProgress(0); return }
+    setBriefProgress(5)
+    const id = setInterval(() => setBriefProgress(p => p + (90 - p) * 0.07), 350)
+    return () => clearInterval(id)
+  }, [briefLoading])
 
   function showToast(message: string, type: 'success' | 'info' = 'success') {
     setToast({ message, type })
@@ -826,7 +872,7 @@ export default function HomePage() {
                 PBL Question Lab
               </h1>
               <p className="text-xl md:text-2xl font-semibold text-white leading-relaxed">
-                שאלות שאי אפשר לפתור ב-ChatGPT.
+                שאלות שמחייבות חקר אמיתי.
               </p>
               <p className="text-base text-slate-400 leading-relaxed max-w-xl mx-auto">
                 כלי AI שעוזר למורים לבנות שאלות מנחות שמחייבות חקר אמיתי —
@@ -838,7 +884,7 @@ export default function HomePage() {
           {/* How it works */}
           <div className="text-center space-y-6">
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest">איך זה עובד</p>
-            <div className="flex items-start justify-center gap-1" dir="ltr">
+            <div className="flex items-start justify-center gap-1">
               {[
                 { num: 1, title: 'מלא פרטים', desc: 'נושא, כיתה, מקצועות, רמת אתגר' },
                 { num: 2, title: 'קבל שאלה מנחה', desc: 'עם ניקוד ב-10 קריטריונים PBL' },
@@ -846,7 +892,7 @@ export default function HomePage() {
               ].map((step, i) => (
                 <div key={step.num} className="flex items-start">
                   {i > 0 && (
-                    <ChevronRight className="w-5 h-5 text-slate-600 mt-4 shrink-0 mx-1" strokeWidth={1.5} />
+                    <ChevronLeft className="w-5 h-5 text-slate-600 mt-4 shrink-0 mx-1" strokeWidth={1.5} />
                   )}
                   <div className="flex flex-col items-center text-center w-28 sm:w-36 gap-2">
                     <div className="w-9 h-9 rounded-full bg-violet-600/20 border border-violet-500/40 flex items-center justify-center text-violet-300 text-sm font-bold">
@@ -1073,6 +1119,8 @@ export default function HomePage() {
                 onGenerateBrief={() => void handleGenerateBrief()}
                 briefLoading={briefLoading}
                 briefError={briefError}
+                briefProgress={briefProgress}
+                briefMsgIdx={briefMsgIdx}
                 onGenerateAgain={() => void handleGenerateAgain()}
                 regenerateLoading={regenerateLoading}
                 regenerateError={regenerateError}
