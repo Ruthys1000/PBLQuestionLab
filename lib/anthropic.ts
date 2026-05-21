@@ -25,7 +25,7 @@ async function callClaude(systemPrompt: string, userMessage: string): Promise<st
   const client = getClient()
   const response = await client.messages.create({
     model: 'claude-sonnet-4-6',
-    max_tokens: 4000,
+    max_tokens: 6000,
     system: systemPrompt,
     messages: [{ role: 'user', content: userMessage }],
   })
@@ -37,9 +37,14 @@ async function callClaude(systemPrompt: string, userMessage: string): Promise<st
   return block.text
 }
 
+function extractJSON(raw: string): string {
+  const fenced = raw.match(/```(?:json)?\s*([\s\S]*?)```/)
+  return fenced ? fenced[1].trim() : raw.trim()
+}
+
 function parseJSON<T>(raw: string, label: string): T {
   try {
-    return JSON.parse(raw) as T
+    return JSON.parse(extractJSON(raw)) as T
   } catch {
     throw new Error(
       `שגיאה בניתוח תגובת Claude עבור ${label}. הפורמט שהתקבל אינו JSON תקני.`
