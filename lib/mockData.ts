@@ -123,7 +123,7 @@ const bq1: BigQuestion = {
     },
     not_googleable: {
       score: 6,
-      explanation: 'קיימות המלצות תכנון רבות ברשת. האתגר הוא להחיל אותן על ההקשר המקומי — זה פחות גוגלאבילי.',
+      explanation: 'קיימות המלצות תכנון רבות ברשת. האתגר הוא להחיל אותן על ההקשר המקומי — ChatGPT לא יכול לעשות את זה במקום התלמידים.',
     },
     overall_score: 7.6,
   },
@@ -248,7 +248,7 @@ const bq2: BigQuestion = {
     },
     not_googleable: {
       score: 8,
-      explanation: 'עמדה אישית מנומקת על "מיהו ישראלי" לא נמצאת בגוגל — היא דורשת גיבוש פנימי.',
+      explanation: 'עמדה אישית מנומקת על "מיהו ישראלי" לא נמצאת ב-ChatGPT — היא דורשת גיבוש פנימי.',
     },
     overall_score: 7.9,
   },
@@ -451,7 +451,7 @@ export const mockDiagnosisResult: DiagnosisResult = {
     },
     not_googleable: {
       score: 1,
-      explanation: 'זוהי בדיוק שאלה שגוגל עונה עליה בשנייה אחת.',
+      explanation: 'זוהי בדיוק שאלה ש-ChatGPT עונה עליה בשנייה אחת.',
     },
     overall_score: 2.0,
   },
