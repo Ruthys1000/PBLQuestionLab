@@ -5,12 +5,11 @@ import {
   BookOpen,
   GraduationCap,
   Layers,
-  Target,
-  FileText,
-  Calendar,
   Zap,
   Search,
   Loader2,
+  Plus,
+  X,
 } from 'lucide-react'
 import { diagnoseExistingQuestion } from '@/lib/apiClient'
 import type { DiagnoseInput, DiagnosisResult } from '@/types'
@@ -18,8 +17,10 @@ import type { DiagnoseInput, DiagnosisResult } from '@/types'
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const SUBJECT_OPTIONS = [
-  'מדעים', 'היסטוריה', 'שפה', 'גאוגרפיה',
+  'מדעים', 'היסטוריה', 'שפה ותקשורת', 'גאוגרפיה',
   'אזרחות', 'מתמטיקה', 'אומנות', 'ספורט',
+  'טכנולוגיה', 'כלכלה', 'ניהול', 'פסיכולוגיה',
+  'פילוסופיה', 'סוציולוגיה', 'בריאות', 'סביבה',
 ]
 
 const LOADING_MESSAGES = [
@@ -72,8 +73,8 @@ export default function DiagnoseForm({ onSuccess }: Props) {
   const [loading, setLoading] = useState(false)
   const [loadingMsgIdx, setLoadingMsgIdx] = useState(0)
   const [submitError, setSubmitError] = useState<string | null>(null)
+  const [customSubjectInput, setCustomSubjectInput] = useState('')
 
-  // Rotate loading message every 2 s
   useEffect(() => {
     if (!loading) return
     const id = setInterval(() => {
@@ -96,14 +97,27 @@ export default function DiagnoseForm({ onSuccess }: Props) {
     set('subjects', next)
   }
 
+  function addCustomSubject() {
+    const trimmed = customSubjectInput.trim()
+    if (!trimmed || form.subjects.includes(trimmed)) {
+      setCustomSubjectInput('')
+      return
+    }
+    set('subjects', [...form.subjects, trimmed])
+    setCustomSubjectInput('')
+  }
+
+  function removeSubject(subject: string) {
+    set('subjects', form.subjects.filter((s) => s !== subject))
+  }
+
+  const customSubjects = form.subjects.filter((s) => !SUBJECT_OPTIONS.includes(s))
+
   function validate(): boolean {
     const next: Partial<Record<keyof DiagnoseInput, string>> = {}
     if (!form.existing_question.trim()) next.existing_question = 'נא להזין את שאלת ה-PBL לאבחון'
     if (!form.topic.trim())             next.topic             = 'נא להזין נושא לימוד'
     if (!form.grade.trim())             next.grade             = 'נא להזין שכבת גיל'
-    if (form.subjects.length < 2)       next.subjects          = 'נא לבחור לפחות 2 תחומי דעת'
-    if (!form.learning_goals.trim())    next.learning_goals    = 'נא להזין מטרות למידה'
-    if (!form.required_content.trim())  next.required_content  = 'נא להזין תכנים נדרשים'
     setErrors(next)
     return Object.keys(next).length === 0
   }
@@ -195,7 +209,7 @@ export default function DiagnoseForm({ onSuccess }: Props) {
             id="grade"
             type="text"
             className={inputCls}
-            placeholder="כיתה ח, תיכון, צוות מורים..."
+            placeholder="כיתה ח, תיכון, צוות מורים, הכשרה מקצועית..."
             value={form.grade}
             onChange={(e) => set('grade', e.target.value)}
             disabled={loading}
@@ -204,13 +218,12 @@ export default function DiagnoseForm({ onSuccess }: Props) {
         </div>
       </div>
 
-      {/* ── Subjects ── */}
+      {/* ── Subjects (optional) ── */}
       <div>
         <div className={labelCls}>
           <Layers className="w-4 h-4 text-gray-400" strokeWidth={1.5} />
           תחומי דעת
-          <span className="text-red-400">*</span>
-          <span className="text-xs font-normal text-gray-400">(לפחות 2)</span>
+          <span className="text-xs font-normal text-gray-400">(אופציונלי)</span>
         </div>
         <div className="flex flex-wrap gap-2">
           {SUBJECT_OPTIONS.map((subject) => {
@@ -233,65 +246,50 @@ export default function DiagnoseForm({ onSuccess }: Props) {
             )
           })}
         </div>
-        {errors.subjects && <p className={errorCls}>{errors.subjects}</p>}
-      </div>
 
-      {/* ── Learning goals ── */}
-      <div>
-        <label htmlFor="learning_goals" className={labelCls}>
-          <Target className="w-4 h-4 text-gray-400" strokeWidth={1.5} />
-          מטרות למידה
-          <span className="text-red-400">*</span>
-        </label>
-        <textarea
-          id="learning_goals"
-          rows={3}
-          className={inputCls + ' resize-none'}
-          placeholder="מה התלמידים אמורים להבין, לדעת או לעשות בסוף הפרויקט?"
-          value={form.learning_goals}
-          onChange={(e) => set('learning_goals', e.target.value)}
-          disabled={loading}
-        />
-        {errors.learning_goals && <p className={errorCls}>{errors.learning_goals}</p>}
-      </div>
+        {/* Custom subject input */}
+        <div className="flex gap-2 mt-2">
+          <input
+            type="text"
+            className={inputCls + ' flex-1'}
+            placeholder="תחום דעת אחר... (הקלד והוסף)"
+            value={customSubjectInput}
+            onChange={(e) => setCustomSubjectInput(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addCustomSubject() } }}
+            disabled={loading}
+          />
+          <button
+            type="button"
+            onClick={addCustomSubject}
+            disabled={loading || !customSubjectInput.trim()}
+            className="shrink-0 inline-flex items-center gap-1 px-3 py-2 rounded-xl border border-gray-200 text-sm text-gray-700 hover:border-gray-400 disabled:opacity-40 transition-colors"
+          >
+            <Plus className="w-4 h-4" strokeWidth={1.5} />
+            הוסף
+          </button>
+        </div>
 
-      {/* ── Required content ── */}
-      <div>
-        <label htmlFor="required_content" className={labelCls}>
-          <FileText className="w-4 h-4 text-gray-400" strokeWidth={1.5} />
-          מושגים או תכנים שחייבים להיכלל
-          <span className="text-red-400">*</span>
-        </label>
-        <textarea
-          id="required_content"
-          rows={3}
-          className={inputCls + ' resize-none'}
-          placeholder="רשמי מושגים, נושאים מהתוכנית, חוקים, תהליכים וכו'..."
-          value={form.required_content}
-          onChange={(e) => set('required_content', e.target.value)}
-          disabled={loading}
-        />
-        {errors.required_content && <p className={errorCls}>{errors.required_content}</p>}
-      </div>
-
-      {/* ── Duration ── */}
-      <div>
-        <label htmlFor="duration" className={labelCls}>
-          <Calendar className="w-4 h-4 text-gray-400" strokeWidth={1.5} />
-          משך הפרויקט
-        </label>
-        <select
-          id="duration"
-          className={inputCls + ' cursor-pointer'}
-          value={form.duration}
-          onChange={(e) => set('duration', e.target.value)}
-          disabled={loading}
-        >
-          <option value="שבוע">שבוע</option>
-          <option value="שבועיים עד שלושה שבועות">2–3 שבועות</option>
-          <option value="ארבעה עד שישה שבועות">4–6 שבועות</option>
-          <option value="סמסטר">סמסטר</option>
-        </select>
+        {/* Custom subject chips */}
+        {customSubjects.length > 0 && (
+          <div className="flex flex-wrap gap-2 mt-2">
+            {customSubjects.map((s) => (
+              <span
+                key={s}
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium bg-gray-900 text-white border border-gray-900"
+              >
+                {s}
+                <button
+                  type="button"
+                  onClick={() => removeSubject(s)}
+                  disabled={loading}
+                  className="ml-0.5 hover:opacity-70"
+                >
+                  <X className="w-3 h-3" strokeWidth={2} />
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* ── Boldness ── */}
@@ -350,7 +348,6 @@ export default function DiagnoseForm({ onSuccess }: Props) {
           )}
         </button>
 
-        {/* Error state */}
         {submitError && (
           <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 flex items-start justify-between gap-3">
             <p className="text-sm text-red-700">

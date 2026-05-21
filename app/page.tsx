@@ -6,6 +6,8 @@ import {
   Search,
   ChevronRight,
   RotateCcw,
+  Loader2,
+  BookOpen,
 } from 'lucide-react'
 import type {
   AppMode,
@@ -15,21 +17,26 @@ import type {
   DiagnoseInput,
   ProjectBrief,
 } from '@/types'
+import { createProjectBrief } from '@/lib/apiClient'
 import GenerateForm from '@/components/GenerateForm'
 import DiagnoseForm from '@/components/DiagnoseForm'
 
-// ─── Placeholder screens ──────────────────────────────────────────────────────
+// ─── Results screen ───────────────────────────────────────────────────────────
 
-function ResultsPlaceholder({
+function ResultsScreen({
   questions,
   selectedQuestion,
   onSelectQuestion,
   onGenerateBrief,
+  briefLoading,
+  briefError,
 }: {
   questions: BigQuestion[]
   selectedQuestion: BigQuestion | null
   onSelectQuestion: (q: BigQuestion) => void
   onGenerateBrief: () => void
+  briefLoading: boolean
+  briefError: string | null
 }) {
   return (
     <div className="space-y-4">
@@ -67,22 +74,47 @@ function ResultsPlaceholder({
       </div>
 
       {selectedQuestion && (
-        <button
-          type="button"
-          onClick={onGenerateBrief}
-          className="w-full py-3 rounded-xl bg-gray-900 text-white text-base font-medium hover:bg-gray-700 transition-colors duration-150"
-        >
-          צור תיק פרויקט לשאלה הנבחרת
-        </button>
+        <div className="space-y-2">
+          <button
+            type="button"
+            onClick={onGenerateBrief}
+            disabled={briefLoading}
+            className={
+              'w-full inline-flex items-center justify-center gap-2 py-3 rounded-xl text-base font-medium transition-colors duration-150 ' +
+              (briefLoading
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : 'bg-gray-900 text-white hover:bg-gray-700')
+            }
+          >
+            {briefLoading ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" strokeWidth={1.5} />
+                בונה תיק פרויקט...
+              </>
+            ) : (
+              <>
+                <BookOpen className="w-5 h-5" strokeWidth={1.5} />
+                צור תיק פרויקט לשאלה הנבחרת
+              </>
+            )}
+          </button>
+
+          {briefError && (
+            <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3">
+              <p className="text-sm text-red-700">{briefError}</p>
+            </div>
+          )}
+        </div>
       )}
     </div>
   )
 }
 
-function DiagnosisPlaceholder({ diagnosis }: { diagnosis: DiagnosisResult }) {
+// ─── Diagnosis screen ─────────────────────────────────────────────────────────
+
+function DiagnosisScreen({ diagnosis }: { diagnosis: DiagnosisResult }) {
   return (
     <div className="space-y-6">
-      {/* Score */}
       <div className="flex items-baseline gap-2">
         <span className="text-5xl font-bold text-gray-900">
           {diagnosis.overall_score.toFixed(1)}
@@ -91,14 +123,12 @@ function DiagnosisPlaceholder({ diagnosis }: { diagnosis: DiagnosisResult }) {
         <span className="text-sm text-gray-500 mr-1">ציון כולל</span>
       </div>
 
-      {/* Why problematic */}
       {diagnosis.why_problematic && (
         <div className="p-4 rounded-xl bg-red-50 border border-red-100">
           <p className="text-sm text-red-800 leading-relaxed">{diagnosis.why_problematic}</p>
         </div>
       )}
 
-      {/* What works */}
       <div>
         <h3 className="text-sm font-semibold text-gray-700 mb-2">מה עובד</h3>
         <ul className="space-y-1.5">
@@ -111,7 +141,6 @@ function DiagnosisPlaceholder({ diagnosis }: { diagnosis: DiagnosisResult }) {
         </ul>
       </div>
 
-      {/* What doesn't work */}
       <div>
         <h3 className="text-sm font-semibold text-gray-700 mb-2">מה לא עובד</h3>
         <ul className="space-y-1.5">
@@ -124,13 +153,11 @@ function DiagnosisPlaceholder({ diagnosis }: { diagnosis: DiagnosisResult }) {
         </ul>
       </div>
 
-      {/* Direction */}
       <div>
         <h3 className="text-sm font-semibold text-gray-700 mb-2">כיוון לשיפור</h3>
         <p className="text-sm text-gray-600 leading-relaxed">{diagnosis.direction}</p>
       </div>
 
-      {/* Alternative formulations */}
       {diagnosis.alternative_formulations.length > 0 && (
         <div>
           <h3 className="text-sm font-semibold text-gray-700 mb-3">ניסוחים חלופיים</h3>
@@ -148,22 +175,128 @@ function DiagnosisPlaceholder({ diagnosis }: { diagnosis: DiagnosisResult }) {
   )
 }
 
-function BriefPlaceholder({ selectedQuestion }: { selectedQuestion: BigQuestion | null }) {
+// ─── Brief screen ─────────────────────────────────────────────────────────────
+
+function BriefScreen({ brief }: { brief: ProjectBrief }) {
   return (
-    <div className="space-y-4">
-      {selectedQuestion ? (
-        <>
-          <p className="text-sm text-gray-500">תיק פרויקט ייבנה עבור השאלה:</p>
-          <div className="p-4 rounded-xl border border-gray-200 bg-gray-50">
-            <p className="text-sm font-medium text-gray-900 leading-relaxed">
-              {selectedQuestion.question}
-            </p>
-          </div>
-        </>
-      ) : (
-        <p className="text-sm text-gray-500">לא נבחרה שאלה.</p>
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="space-y-2">
+        <h3 className="text-xl font-bold text-gray-900">{brief.project_title}</h3>
+        <div className="p-4 rounded-xl bg-gray-50 border border-gray-200">
+          <p className="text-sm font-medium text-gray-800 leading-relaxed">
+            {brief.driving_question}
+          </p>
+        </div>
+        {brief.teacher_summary && (
+          <p className="text-sm text-gray-600 leading-relaxed">{brief.teacher_summary}</p>
+        )}
+      </div>
+
+      {/* Learning goals */}
+      {brief.learning_goals.length > 0 && (
+        <section>
+          <h4 className="text-sm font-semibold text-gray-700 mb-2">מטרות למידה</h4>
+          <ul className="space-y-1.5">
+            {brief.learning_goals.map((g, i) => (
+              <li key={i} className="text-sm text-gray-600 flex gap-2">
+                <span className="text-gray-400 shrink-0">{i + 1}.</span>
+                {g}
+              </li>
+            ))}
+          </ul>
+        </section>
       )}
-      <p className="text-sm text-gray-400">תצוגת תיק הפרויקט תתווסף בקרוב.</p>
+
+      {/* Inquiry stages */}
+      {brief.inquiry_stages.length > 0 && (
+        <section>
+          <h4 className="text-sm font-semibold text-gray-700 mb-2">שלבי החקירה</h4>
+          <div className="space-y-2">
+            {brief.inquiry_stages.map((stage, i) => (
+              <div key={i} className="p-3 rounded-lg border border-gray-100 bg-gray-50">
+                <p className="text-sm text-gray-700 leading-relaxed">{stage}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Possible products */}
+      {brief.possible_products.length > 0 && (
+        <section>
+          <h4 className="text-sm font-semibold text-gray-700 mb-2">תוצרים אפשריים</h4>
+          <ul className="space-y-1.5">
+            {brief.possible_products.map((p, i) => (
+              <li key={i} className="text-sm text-gray-600 flex gap-2">
+                <span className="text-gray-400 shrink-0">•</span>
+                {p}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {/* Rubric */}
+      {brief.rubric.length > 0 && (
+        <section>
+          <h4 className="text-sm font-semibold text-gray-700 mb-3">רובריקה</h4>
+          <div className="overflow-x-auto rounded-xl border border-gray-200">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  {['קריטריון', 'מתחיל', 'מתפתח', 'מיומן'].map((h) => (
+                    <th key={h} className="px-3 py-2 text-right font-medium text-gray-700">
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {brief.rubric.map((row, i) => (
+                  <tr key={i} className="border-b border-gray-100 last:border-0">
+                    <td className="px-3 py-2 font-medium text-gray-900 align-top">{row.criterion}</td>
+                    <td className="px-3 py-2 text-gray-600 align-top">{row.beginning}</td>
+                    <td className="px-3 py-2 text-gray-600 align-top">{row.developing}</td>
+                    <td className="px-3 py-2 text-gray-600 align-top">{row.proficient}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
+
+      {/* Differentiation */}
+      {(brief.differentiation.support || brief.differentiation.extension) && (
+        <section>
+          <h4 className="text-sm font-semibold text-gray-700 mb-3">דיפרנציאציה</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {brief.differentiation.support && (
+              <div className="p-3 rounded-lg border border-blue-100 bg-blue-50">
+                <p className="text-xs font-semibold text-blue-700 mb-1">תמיכה</p>
+                <p className="text-sm text-blue-800 leading-relaxed">{brief.differentiation.support}</p>
+              </div>
+            )}
+            {brief.differentiation.extension && (
+              <div className="p-3 rounded-lg border border-green-100 bg-green-50">
+                <p className="text-xs font-semibold text-green-700 mb-1">הרחבה</p>
+                <p className="text-sm text-green-800 leading-relaxed">{brief.differentiation.extension}</p>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* Opening experience */}
+      {brief.opening_experience && (
+        <section>
+          <h4 className="text-sm font-semibold text-gray-700 mb-2">חוויית פתיחה</h4>
+          <div className="p-4 rounded-xl border border-amber-100 bg-amber-50">
+            <p className="text-sm text-amber-800 leading-relaxed">{brief.opening_experience}</p>
+          </div>
+        </section>
+      )}
     </div>
   )
 }
@@ -216,6 +349,8 @@ export default function HomePage() {
   const [projectBrief, setProjectBrief] = useState<ProjectBrief | null>(null)
   const [mockMode, setMockMode] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
+  const [briefLoading, setBriefLoading] = useState(false)
+  const [briefError, setBriefError] = useState<string | null>(null)
 
   function resetAll() {
     setMode('home')
@@ -227,6 +362,8 @@ export default function HomePage() {
     setProjectBrief(null)
     setMockMode(false)
     setShowConfirm(false)
+    setBriefLoading(false)
+    setBriefError(null)
   }
 
   function goBack() {
@@ -238,6 +375,24 @@ export default function HomePage() {
       brief: formInput !== null ? 'results' : 'diagnosis',
     }
     setMode(dest[mode] ?? 'home')
+  }
+
+  async function handleGenerateBrief() {
+    if (!selectedQuestion) return
+    const originalInput = formInput ?? diagnoseInput
+    if (!originalInput) return
+    setBriefLoading(true)
+    setBriefError(null)
+    try {
+      const { brief, mockMode: m } = await createProjectBrief({ selectedQuestion, originalInput })
+      setProjectBrief(brief)
+      setMockMode(m)
+      setMode('brief')
+    } catch (err) {
+      setBriefError(err instanceof Error ? err.message : 'שגיאה ביצירת תיק פרויקט')
+    } finally {
+      setBriefLoading(false)
+    }
   }
 
   // ── Home ────────────────────────────────────────────────────────────────────
@@ -295,14 +450,12 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen bg-gray-50">
-      {/* Mock mode banner */}
       {mockMode && (
         <div className="bg-amber-50 border-b border-amber-200 px-4 py-2.5 text-center">
           <span className="text-sm text-amber-800">פועל במצב הדגמה — אין מפתח API</span>
         </div>
       )}
 
-      {/* Navigation bar */}
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-3xl mx-auto px-6 py-3 flex items-center justify-between">
           <button
@@ -327,7 +480,6 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Content */}
       <div className={`mx-auto px-6 py-8 ${isWide ? 'max-w-3xl' : 'max-w-2xl'}`}>
 
         {/* Generate form */}
@@ -335,7 +487,6 @@ export default function HomePage() {
           <div className="bg-white rounded-2xl border border-gray-100 p-6 md:p-8">
             <GenerateForm
               onSuccess={(qs, mock, input) => {
-                console.log('[generate] questions:', qs, 'mockMode:', mock)
                 setQuestions(qs)
                 setFormInput(input)
                 setMockMode(mock)
@@ -350,7 +501,6 @@ export default function HomePage() {
           <div className="bg-white rounded-2xl border border-gray-100 p-6 md:p-8">
             <DiagnoseForm
               onSuccess={(diag, mock, input) => {
-                console.log('[diagnose] diagnosis:', diag, 'mockMode:', mock)
                 setDiagnosis(diag)
                 setDiagnoseInput(input)
                 setMockMode(mock)
@@ -366,11 +516,13 @@ export default function HomePage() {
             <div className="pb-4 border-b border-gray-100 mb-6">
               <h2 className="text-lg font-semibold text-gray-900">שאלות מנחות שנוצרו</h2>
             </div>
-            <ResultsPlaceholder
+            <ResultsScreen
               questions={questions}
               selectedQuestion={selectedQuestion}
               onSelectQuestion={setSelectedQuestion}
-              onGenerateBrief={() => setMode('brief')}
+              onGenerateBrief={() => void handleGenerateBrief()}
+              briefLoading={briefLoading}
+              briefError={briefError}
             />
           </div>
         )}
@@ -381,22 +533,21 @@ export default function HomePage() {
             <div className="pb-4 border-b border-gray-100 mb-6">
               <h2 className="text-lg font-semibold text-gray-900">תוצאות האבחון</h2>
             </div>
-            <DiagnosisPlaceholder diagnosis={diagnosis} />
+            <DiagnosisScreen diagnosis={diagnosis} />
           </div>
         )}
 
         {/* Brief */}
-        {mode === 'brief' && (
+        {mode === 'brief' && projectBrief && (
           <div className="bg-white rounded-2xl border border-gray-100 p-6 md:p-8">
             <div className="pb-4 border-b border-gray-100 mb-6">
               <h2 className="text-lg font-semibold text-gray-900">תיק פרויקט</h2>
             </div>
-            <BriefPlaceholder selectedQuestion={selectedQuestion} />
+            <BriefScreen brief={projectBrief} />
           </div>
         )}
       </div>
 
-      {/* Confirmation dialog */}
       {showConfirm && (
         <ConfirmDialog
           onConfirm={resetAll}

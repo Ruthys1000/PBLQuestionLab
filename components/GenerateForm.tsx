@@ -7,13 +7,11 @@ import {
   Layers,
   Target,
   FileText,
-  Calendar,
-  Globe,
-  BarChart2,
-  Package,
   Zap,
   FlaskConical,
   Loader2,
+  Plus,
+  X,
 } from 'lucide-react'
 import { createQuestions } from '@/lib/apiClient'
 import type { BigQuestion, FormInput } from '@/types'
@@ -21,8 +19,10 @@ import type { BigQuestion, FormInput } from '@/types'
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const SUBJECT_OPTIONS = [
-  'מדעים', 'היסטוריה', 'שפה', 'גאוגרפיה',
+  'מדעים', 'היסטוריה', 'שפה ותקשורת', 'גאוגרפיה',
   'אזרחות', 'מתמטיקה', 'אומנות', 'ספורט',
+  'טכנולוגיה', 'כלכלה', 'ניהול', 'פסיכולוגיה',
+  'פילוסופיה', 'סוציולוגיה', 'בריאות', 'סביבה',
 ]
 
 const LOADING_MESSAGES = [
@@ -77,8 +77,8 @@ export default function GenerateForm({ onSuccess }: Props) {
   const [loading, setLoading] = useState(false)
   const [loadingMsgIdx, setLoadingMsgIdx] = useState(0)
   const [submitError, setSubmitError] = useState<string | null>(null)
+  const [customSubjectInput, setCustomSubjectInput] = useState('')
 
-  // Rotate loading message every 2 s
   useEffect(() => {
     if (!loading) return
     const id = setInterval(() => {
@@ -101,13 +101,27 @@ export default function GenerateForm({ onSuccess }: Props) {
     set('subjects', next)
   }
 
+  function addCustomSubject() {
+    const trimmed = customSubjectInput.trim()
+    if (!trimmed || form.subjects.includes(trimmed)) {
+      setCustomSubjectInput('')
+      return
+    }
+    set('subjects', [...form.subjects, trimmed])
+    setCustomSubjectInput('')
+  }
+
+  function removeSubject(subject: string) {
+    set('subjects', form.subjects.filter((s) => s !== subject))
+  }
+
+  const customSubjects = form.subjects.filter((s) => !SUBJECT_OPTIONS.includes(s))
+
   function validate(): boolean {
     const next: Partial<Record<keyof FormInput, string>> = {}
-    if (!form.topic.trim())           next.topic           = 'נא להזין נושא לימוד'
-    if (!form.grade.trim())           next.grade           = 'נא להזין שכבת גיל'
-    if (form.subjects.length < 2)     next.subjects        = 'נא לבחור לפחות 2 תחומי דעת'
-    if (!form.learning_goals.trim())  next.learning_goals  = 'נא להזין מטרות למידה'
-    if (!form.required_content.trim()) next.required_content = 'נא להזין תכנים נדרשים'
+    if (!form.topic.trim()) next.topic = 'נא להזין נושא לימוד'
+    if (!form.grade.trim()) next.grade = 'נא להזין שכבת גיל'
+    if (form.subjects.length < 2) next.subjects = 'נא לבחור לפחות 2 תחומי דעת'
     setErrors(next)
     return Object.keys(next).length === 0
   }
@@ -180,7 +194,7 @@ export default function GenerateForm({ onSuccess }: Props) {
             id="grade"
             type="text"
             className={inputCls}
-            placeholder="כיתה ח, תיכון, צוות מורים..."
+            placeholder="כיתה ח, תיכון, צוות מורים, הכשרה מקצועית..."
             value={form.grade}
             onChange={(e) => set('grade', e.target.value)}
             disabled={loading}
@@ -218,122 +232,86 @@ export default function GenerateForm({ onSuccess }: Props) {
             )
           })}
         </div>
+
+        {/* Custom subject input */}
+        <div className="flex gap-2 mt-2">
+          <input
+            type="text"
+            className={inputCls + ' flex-1'}
+            placeholder="תחום דעת אחר... (הקלד והוסף)"
+            value={customSubjectInput}
+            onChange={(e) => setCustomSubjectInput(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addCustomSubject() } }}
+            disabled={loading}
+          />
+          <button
+            type="button"
+            onClick={addCustomSubject}
+            disabled={loading || !customSubjectInput.trim()}
+            className="shrink-0 inline-flex items-center gap-1 px-3 py-2 rounded-xl border border-gray-200 text-sm text-gray-700 hover:border-gray-400 disabled:opacity-40 transition-colors"
+          >
+            <Plus className="w-4 h-4" strokeWidth={1.5} />
+            הוסף
+          </button>
+        </div>
+
+        {/* Custom subject chips */}
+        {customSubjects.length > 0 && (
+          <div className="flex flex-wrap gap-2 mt-2">
+            {customSubjects.map((s) => (
+              <span
+                key={s}
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium bg-gray-900 text-white border border-gray-900"
+              >
+                {s}
+                <button
+                  type="button"
+                  onClick={() => removeSubject(s)}
+                  disabled={loading}
+                  className="ml-0.5 hover:opacity-70"
+                >
+                  <X className="w-3 h-3" strokeWidth={2} />
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
+
         {errors.subjects && <p className={errorCls}>{errors.subjects}</p>}
       </div>
 
-      {/* ── Learning goals ── */}
+      {/* ── Learning goals (optional) ── */}
       <div>
         <label htmlFor="learning_goals" className={labelCls}>
           <Target className="w-4 h-4 text-gray-400" strokeWidth={1.5} />
           מטרות למידה
-          <span className="text-red-400">*</span>
+          <span className="text-xs font-normal text-gray-400">(אופציונלי)</span>
         </label>
         <textarea
           id="learning_goals"
-          rows={3}
+          rows={2}
           className={inputCls + ' resize-none'}
           placeholder="מה התלמידים אמורים להבין, לדעת או לעשות בסוף הפרויקט?"
           value={form.learning_goals}
           onChange={(e) => set('learning_goals', e.target.value)}
           disabled={loading}
         />
-        {errors.learning_goals && <p className={errorCls}>{errors.learning_goals}</p>}
       </div>
 
-      {/* ── Required content ── */}
+      {/* ── Required content (optional) ── */}
       <div>
         <label htmlFor="required_content" className={labelCls}>
           <FileText className="w-4 h-4 text-gray-400" strokeWidth={1.5} />
           מושגים או תכנים שחייבים להיכלל
-          <span className="text-red-400">*</span>
+          <span className="text-xs font-normal text-gray-400">(אופציונלי)</span>
         </label>
         <textarea
           id="required_content"
-          rows={3}
+          rows={2}
           className={inputCls + ' resize-none'}
           placeholder="רשמי מושגים, נושאים מהתוכנית, חוקים, תהליכים וכו'..."
           value={form.required_content}
           onChange={(e) => set('required_content', e.target.value)}
-          disabled={loading}
-        />
-        {errors.required_content && <p className={errorCls}>{errors.required_content}</p>}
-      </div>
-
-      {/* ── Row 2: duration + context + difficulty ── */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-
-        {/* Duration */}
-        <div>
-          <label htmlFor="duration" className={labelCls}>
-            <Calendar className="w-4 h-4 text-gray-400" strokeWidth={1.5} />
-            משך הפרויקט
-          </label>
-          <select
-            id="duration"
-            className={inputCls + ' cursor-pointer'}
-            value={form.duration}
-            onChange={(e) => set('duration', e.target.value)}
-            disabled={loading}
-          >
-            <option value="שבוע">שבוע</option>
-            <option value="שבועיים עד שלושה שבועות">2–3 שבועות</option>
-            <option value="ארבעה עד שישה שבועות">4–6 שבועות</option>
-            <option value="סמסטר">סמסטר</option>
-          </select>
-        </div>
-
-        {/* Context */}
-        <div>
-          <label htmlFor="context" className={labelCls}>
-            <Globe className="w-4 h-4 text-gray-400" strokeWidth={1.5} />
-            הקשר מקומי / עולמי
-            <span className="text-xs font-normal text-gray-400">(אופציונלי)</span>
-          </label>
-          <input
-            id="context"
-            type="text"
-            className={inputCls}
-            placeholder="לדוגמה: ישראל, ים התיכון, עיר..."
-            value={form.context}
-            onChange={(e) => set('context', e.target.value)}
-            disabled={loading}
-          />
-        </div>
-
-        {/* Difficulty */}
-        <div>
-          <label htmlFor="difficulty" className={labelCls}>
-            <BarChart2 className="w-4 h-4 text-gray-400" strokeWidth={1.5} />
-            רמת קושי
-          </label>
-          <select
-            id="difficulty"
-            className={inputCls + ' cursor-pointer'}
-            value={form.difficulty}
-            onChange={(e) => set('difficulty', e.target.value as FormInput['difficulty'])}
-            disabled={loading}
-          >
-            <option value="basic">בסיסית</option>
-            <option value="intermediate">בינונית</option>
-            <option value="advanced">מאתגרת</option>
-          </select>
-        </div>
-      </div>
-
-      {/* ── Preferred product ── */}
-      <div>
-        <label htmlFor="preferred_product" className={labelCls}>
-          <Package className="w-4 h-4 text-gray-400" strokeWidth={1.5} />
-          סוג תוצר מועדף
-          <span className="text-xs font-normal text-gray-400">(אופציונלי)</span>
-        </label>
-        <input
-          id="preferred_product"
-          type="text"
-          className={inputCls}
-          placeholder="לדוגמה: מצגת, אב-טיפוס, מסמך מדיניות, הצגה..."
-          value={form.preferred_product}
-          onChange={(e) => set('preferred_product', e.target.value)}
           disabled={loading}
         />
       </div>
@@ -394,7 +372,6 @@ export default function GenerateForm({ onSuccess }: Props) {
           )}
         </button>
 
-        {/* Error state */}
         {submitError && (
           <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 flex items-start justify-between gap-3">
             <p className="text-sm text-red-700">
