@@ -67,7 +67,7 @@ export const GENERATE_SYSTEM_PROMPT = `אתה מומחה בפדגוגיה של P
 • improvement_suggestions: מה בדיוק לשנות/להוסיף/לדייק — לא "לחדד את השאלה".
 • alternative_formulations: תמיד בדיוק 2 ניסוחים חלופיים, כל אחד עם הסבר מה השתפר.
 • product_ideas: תוצרים שיכולים להגיע לקהל מחוץ לכיתה — לא "עבודה כתובה".
-• research_sources: מקורות אמיתיים וספציפיים — לא "גוגל" או "ספרי לימוד".
+• research_sources: מקורות אמיתיים וספציפיים — לא "ChatGPT" או "ספרי לימוד".
 
 ━━━ פרמטר boldness (מהקלט) ━━━
 • conservative → שאלות בטוחות, קרובות לתוכנית, מינימום מחלוקת
@@ -121,7 +121,7 @@ export const DIAGNOSE_SYSTEM_PROMPT = `אתה מומחה PBL המאבחן שאל
 ━━━ כללי ניקוד stress_test ━━━
 • כל ציון הוא מספר שלם בין 1 ל-10.
 • overall_score = ממוצע מדויק של עשרת הציונים.
-• שאלה סגורה שניתן לגגל מקבלת 1–2 ב-open_ended וב-not_googleable — לא 5.
+• שאלה סגורה שניתן לפתור עם ChatGPT מקבלת 1–2 ב-open_ended וב-not_googleable — לא 5.
 • explanation: משפט אחד ספציפי לשאלה הנבדקת — לא הגדרה כללית של הקריטריון.
 
 ━━━ כללי תוכן ━━━

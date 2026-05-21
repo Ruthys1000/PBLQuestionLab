@@ -11,7 +11,7 @@ const heebo = Heebo({
 
 export const metadata: Metadata = {
   title: 'PBL Question Lab',
-  description: 'הופכים נושא לימודי לשאלת PBL שאי אפשר לפתור עם תשובה מגוגל.',
+  description: 'הופכים נושא לימודי לשאלת PBL שאי אפשר לפתור עם ChatGPT.',
 }
 
 export default function RootLayout({
