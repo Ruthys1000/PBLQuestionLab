@@ -401,6 +401,10 @@ function ResultsScreen({
       {/* Generate brief */}
       {selectedQuestion && (
         <div className="space-y-2 pt-1">
+          <div className="rounded-xl border border-violet-500/30 bg-violet-500/5 px-4 py-3">
+            <p className="text-[11px] text-violet-400 font-semibold mb-1">השאלה שתיבנה עליה תיק הפרויקט:</p>
+            <p className="text-xs text-white leading-relaxed">{selectedQuestion.question}</p>
+          </div>
           <button
             type="button"
             onClick={onGenerateBrief}
@@ -824,6 +828,8 @@ export default function HomePage() {
     setShowConfirm(false)
     setBriefLoading(false)
     setBriefError(null)
+    setBriefProgress(0)
+    setBriefMsgIdx(0)
     setRegenerateLoading(false)
     setRegenerateError(null)
   }
@@ -1071,7 +1077,7 @@ export default function HomePage() {
             onClick={goBack}
             className="inline-flex items-center gap-1.5 text-sm text-slate-400 hover:text-white transition-colors"
           >
-            <ChevronRight className="w-4 h-4" strokeWidth={1.5} />
+            <ChevronLeft className="w-4 h-4" strokeWidth={1.5} />
             חזור
           </button>
 

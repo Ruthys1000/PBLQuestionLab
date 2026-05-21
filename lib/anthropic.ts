@@ -21,20 +21,34 @@ function getClient(): Anthropic {
   return new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 }
 
-async function callClaude(systemPrompt: string, userMessage: string): Promise<string> {
+async function callClaude(
+  systemPrompt: string,
+  userMessage: string,
+  maxTokens = 4000,
+): Promise<string> {
   const client = getClient()
-  const response = await client.messages.create({
-    model: 'claude-sonnet-4-6',
-    max_tokens: 6000,
-    system: [{ type: 'text', text: systemPrompt, cache_control: { type: 'ephemeral' } }],
-    messages: [{ role: 'user', content: userMessage }],
-  })
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), 110_000)
 
-  const block = response.content[0]
-  if (!block || block.type !== 'text') {
-    throw new Error('שגיאה: Claude לא החזיר תוכן טקסטואלי')
+  try {
+    const response = await client.messages.create(
+      {
+        model: 'claude-sonnet-4-6',
+        max_tokens: maxTokens,
+        system: [{ type: 'text', text: systemPrompt, cache_control: { type: 'ephemeral' } }],
+        messages: [{ role: 'user', content: userMessage }],
+      },
+      { signal: controller.signal },
+    )
+
+    const block = response.content[0]
+    if (!block || block.type !== 'text') {
+      throw new Error('שגיאה: Claude לא החזיר תוכן טקסטואלי')
+    }
+    return block.text
+  } finally {
+    clearTimeout(timeoutId)
   }
-  return block.text
 }
 
 function extractJSON(raw: string): string {
@@ -64,7 +78,7 @@ export async function generateQuestions(input: FormInput): Promise<BigQuestion[]
   }
 
   try {
-    const raw = await callClaude(GENERATE_SYSTEM_PROMPT, JSON.stringify(input))
+    const raw = await callClaude(GENERATE_SYSTEM_PROMPT, JSON.stringify(input), 3500)
     const parsed = parseJSON<{ questions: BigQuestion[] }>(raw, 'generateQuestions')
     return parsed.questions
   } catch (err) {
@@ -83,7 +97,7 @@ export async function diagnoseQuestion(input: DiagnoseInput): Promise<DiagnosisR
   }
 
   try {
-    const raw = await callClaude(DIAGNOSE_SYSTEM_PROMPT, JSON.stringify(input))
+    const raw = await callClaude(DIAGNOSE_SYSTEM_PROMPT, JSON.stringify(input), 3000)
     const parsed = parseJSON<{ diagnosis: DiagnosisResult }>(raw, 'diagnoseQuestion')
     return parsed.diagnosis
   } catch (err) {
@@ -105,7 +119,7 @@ export async function generateProjectBrief(params: {
   }
 
   try {
-    const raw = await callClaude(BRIEF_SYSTEM_PROMPT, JSON.stringify(params))
+    const raw = await callClaude(BRIEF_SYSTEM_PROMPT, JSON.stringify(params), 5000)
     const parsed = parseJSON<{ brief: ProjectBrief }>(raw, 'generateProjectBrief')
     return parsed.brief
   } catch (err) {
