@@ -58,7 +58,8 @@ export async function generateQuestions(input: FormInput): Promise<BigQuestion[]
 
   try {
     const raw = await callClaude(GENERATE_SYSTEM_PROMPT, JSON.stringify(input))
-    return parseJSON<BigQuestion[]>(raw, 'generateQuestions')
+    const parsed = parseJSON<{ questions: BigQuestion[] }>(raw, 'generateQuestions')
+    return parsed.questions
   } catch (err) {
     if (err instanceof Error && err.message.startsWith('שגיאה')) throw err
     throw new Error('שגיאת שרת: לא ניתן ליצור שאלות כרגע. אנא נסה שוב.')
@@ -74,7 +75,8 @@ export async function diagnoseQuestion(input: DiagnoseInput): Promise<DiagnosisR
 
   try {
     const raw = await callClaude(DIAGNOSE_SYSTEM_PROMPT, JSON.stringify(input))
-    return parseJSON<DiagnosisResult>(raw, 'diagnoseQuestion')
+    const parsed = parseJSON<{ diagnosis: DiagnosisResult }>(raw, 'diagnoseQuestion')
+    return parsed.diagnosis
   } catch (err) {
     if (err instanceof Error && err.message.startsWith('שגיאה')) throw err
     throw new Error('שגיאת שרת: לא ניתן לאבחן את השאלה כרגע. אנא נסה שוב.')
@@ -93,7 +95,8 @@ export async function generateProjectBrief(params: {
 
   try {
     const raw = await callClaude(BRIEF_SYSTEM_PROMPT, JSON.stringify(params))
-    return parseJSON<ProjectBrief>(raw, 'generateProjectBrief')
+    const parsed = parseJSON<{ brief: ProjectBrief }>(raw, 'generateProjectBrief')
+    return parsed.brief
   } catch (err) {
     if (err instanceof Error && err.message.startsWith('שגיאה')) throw err
     throw new Error('שגיאת שרת: לא ניתן ליצור תיק פרויקט כרגע. אנא נסה שוב.')
