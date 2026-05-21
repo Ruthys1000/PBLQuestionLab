@@ -70,6 +70,7 @@ interface Props {
 export default function DiagnoseForm({ onSuccess }: Props) {
   const [form, setForm] = useState<DiagnoseInput>(INITIAL_FORM)
   const [errors, setErrors] = useState<Partial<Record<keyof DiagnoseInput, string>>>({})
+  const [touched, setTouched] = useState<Partial<Record<keyof DiagnoseInput, boolean>>>({})
   const [loading, setLoading] = useState(false)
   const [loadingMsgIdx, setLoadingMsgIdx] = useState(0)
   const [submitError, setSubmitError] = useState<string | null>(null)
@@ -97,7 +98,36 @@ export default function DiagnoseForm({ onSuccess }: Props) {
 
   function set<K extends keyof DiagnoseInput>(key: K, value: DiagnoseInput[K]) {
     setForm((prev) => ({ ...prev, [key]: value }))
-    setErrors((prev) => ({ ...prev, [key]: undefined }))
+    if (touched[key]) {
+      validateSingleField(key, value)
+    }
+  }
+
+  function validateSingleField<K extends keyof DiagnoseInput>(key: K, value: DiagnoseInput[K]) {
+    setErrors((prev) => {
+      const next = { ...prev }
+      if (key === 'existing_question') {
+        const v = value as string
+        if (!v.trim()) next.existing_question = 'נא להזין את שאלת ה-PBL לאבחון'
+        else delete next.existing_question
+      }
+      if (key === 'topic') {
+        const v = value as string
+        if (!v.trim()) next.topic = 'נא להזין נושא לימוד'
+        else delete next.topic
+      }
+      if (key === 'grade') {
+        const v = value as string
+        if (!v.trim()) next.grade = 'נא להזין שכבת גיל'
+        else delete next.grade
+      }
+      return next
+    })
+  }
+
+  function handleBlur(key: keyof DiagnoseInput) {
+    setTouched((prev) => ({ ...prev, [key]: true }))
+    validateSingleField(key, form[key])
   }
 
   function toggleSubject(subject: string) {
@@ -124,6 +154,12 @@ export default function DiagnoseForm({ onSuccess }: Props) {
   const customSubjects = form.subjects.filter((s) => !SUBJECT_OPTIONS.includes(s))
 
   function validate(): boolean {
+    const allTouched: Partial<Record<keyof DiagnoseInput, boolean>> = {
+      existing_question: true,
+      topic: true,
+      grade: true,
+    }
+    setTouched((prev) => ({ ...prev, ...allTouched }))
     const next: Partial<Record<keyof DiagnoseInput, string>> = {}
     if (!form.existing_question.trim()) next.existing_question = 'נא להזין את שאלת ה-PBL לאבחון'
     if (!form.topic.trim())             next.topic             = 'נא להזין נושא לימוד'
@@ -155,6 +191,36 @@ export default function DiagnoseForm({ onSuccess }: Props) {
     void doSubmit()
   }
 
+  // ── Loading skeleton ────────────────────────────────────────────────────────
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="pb-2 border-b border-slate-800 animate-pulse">
+          <div className="h-5 w-40 bg-slate-800 rounded-lg" />
+          <div className="h-3 w-64 bg-slate-800 rounded-lg mt-2" />
+        </div>
+        <div className="h-28 bg-slate-800 rounded-xl animate-pulse" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-pulse">
+          <div className="h-11 bg-slate-800 rounded-xl" />
+          <div className="h-11 bg-slate-800 rounded-xl" />
+        </div>
+        <div className="h-16 bg-slate-800 rounded-xl animate-pulse" />
+
+        {/* Progress + rotating message */}
+        <div className="space-y-1.5">
+          <div className="h-1.5 w-full bg-slate-700 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-violet-500 to-indigo-400 rounded-full transition-all duration-300 ease-out"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+          <p className="text-xs text-slate-400 text-center">{LOADING_MESSAGES[loadingMsgIdx]}</p>
+        </div>
+      </div>
+    )
+  }
+
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
@@ -165,6 +231,9 @@ export default function DiagnoseForm({ onSuccess }: Props) {
         <h2 className="text-lg font-semibold text-white">אבחון שאלת PBL</h2>
         <p className="text-sm text-slate-400 mt-0.5">
           הכנסי את השאלה הקיימת ו-Claude יאבחן אותה ויציע שיפורים
+        </p>
+        <p className="text-xs text-slate-500 mt-1">
+          שדות המסומנים ב-<span className="text-rose-400">*</span> הם שדות חובה
         </p>
       </div>
 
@@ -182,9 +251,18 @@ export default function DiagnoseForm({ onSuccess }: Props) {
           placeholder="הכנס כאן את שאלת ה-PBL שברצונך לאבחן..."
           value={form.existing_question}
           onChange={(e) => set('existing_question', e.target.value)}
+          onBlur={() => handleBlur('existing_question')}
           disabled={loading}
         />
-        {errors.existing_question && <p className={errorCls}>{errors.existing_question}</p>}
+        <div className="flex items-center justify-between mt-1">
+          {touched.existing_question && errors.existing_question
+            ? <p className={errorCls}>{errors.existing_question}</p>
+            : <span />
+          }
+          <span className={`text-xs ms-auto ${form.existing_question.length > 500 ? 'text-amber-400' : 'text-slate-600'}`}>
+            {form.existing_question.length} תו
+          </span>
+        </div>
       </div>
 
       {/* ── Row: topic + grade ── */}
@@ -204,9 +282,10 @@ export default function DiagnoseForm({ onSuccess }: Props) {
             placeholder="לדוגמה: מים, אנרגיה, גלות וגאולה..."
             value={form.topic}
             onChange={(e) => set('topic', e.target.value)}
+            onBlur={() => handleBlur('topic')}
             disabled={loading}
           />
-          {errors.topic && <p className={errorCls}>{errors.topic}</p>}
+          {touched.topic && errors.topic && <p className={errorCls}>{errors.topic}</p>}
         </div>
 
         {/* Grade */}
@@ -223,9 +302,10 @@ export default function DiagnoseForm({ onSuccess }: Props) {
             placeholder="כיתה ח, תיכון, צוות מורים, הכשרה מקצועית..."
             value={form.grade}
             onChange={(e) => set('grade', e.target.value)}
+            onBlur={() => handleBlur('grade')}
             disabled={loading}
           />
-          {errors.grade && <p className={errorCls}>{errors.grade}</p>}
+          {touched.grade && errors.grade && <p className={errorCls}>{errors.grade}</p>}
         </div>
       </div>
 
@@ -236,7 +316,11 @@ export default function DiagnoseForm({ onSuccess }: Props) {
           תחומי דעת
           <span className="text-xs font-normal text-slate-500">(אופציונלי)</span>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div
+          className="flex flex-wrap gap-2"
+          role="group"
+          aria-label="תחומי דעת"
+        >
           {SUBJECT_OPTIONS.map((subject) => {
             const selected = form.subjects.includes(subject)
             return (
@@ -245,8 +329,10 @@ export default function DiagnoseForm({ onSuccess }: Props) {
                 type="button"
                 onClick={() => toggleSubject(subject)}
                 disabled={loading}
+                aria-pressed={selected}
                 className={
                   'px-3 py-1.5 rounded-lg text-sm font-medium border transition-all duration-100 ' +
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 ' +
                   (selected
                     ? 'bg-violet-600 border-violet-600 text-white shadow-md shadow-violet-500/30'
                     : 'bg-slate-800 border-slate-700 text-slate-300 hover:border-slate-500')
@@ -263,7 +349,7 @@ export default function DiagnoseForm({ onSuccess }: Props) {
           <input
             type="text"
             className={inputCls + ' flex-1'}
-            placeholder="תחום דעת אחר... (הקלד והוסף)"
+            placeholder="תחום דעת נוסף... (הקלד ולחץ Enter)"
             value={customSubjectInput}
             onChange={(e) => setCustomSubjectInput(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addCustomSubject() } }}
@@ -293,7 +379,8 @@ export default function DiagnoseForm({ onSuccess }: Props) {
                   type="button"
                   onClick={() => removeSubject(s)}
                   disabled={loading}
-                  className="ml-0.5 hover:opacity-70"
+                  className="ms-0.5 hover:opacity-70 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white rounded"
+                  aria-label={`הסר ${s}`}
                 >
                   <X className="w-3 h-3" strokeWidth={2} />
                 </button>
@@ -309,7 +396,11 @@ export default function DiagnoseForm({ onSuccess }: Props) {
           <Zap className="w-4 h-4 text-violet-400" strokeWidth={1.5} />
           רמת נועזות פדגוגית
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div
+          className="grid grid-cols-1 sm:grid-cols-3 gap-3"
+          role="radiogroup"
+          aria-label="רמת נועזות פדגוגית"
+        >
           {BOLDNESS_OPTIONS.map(({ value, label, subtitle }) => {
             const selected = form.boldness === value
             return (
@@ -318,15 +409,18 @@ export default function DiagnoseForm({ onSuccess }: Props) {
                 type="button"
                 onClick={() => set('boldness', value)}
                 disabled={loading}
+                role="radio"
+                aria-checked={selected}
                 className={
-                  'rounded-xl px-4 py-3 text-start transition-all duration-100 ' +
+                  'rounded-xl px-4 py-3 text-start transition-all duration-100 cursor-pointer ' +
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 ' +
                   (selected
-                    ? 'border-2 border-violet-500 bg-slate-800 shadow-lg shadow-violet-500/20'
+                    ? 'border-2 border-violet-500 bg-slate-800 shadow-lg shadow-violet-500/20 ring-2 ring-violet-500/20'
                     : 'border border-slate-700 bg-slate-800 hover:border-slate-500')
                 }
               >
                 <div className={`text-sm font-semibold ${selected ? 'text-violet-300' : 'text-white'}`}>{label}</div>
-                <div className="text-xs text-slate-400 mt-0.5">{subtitle}</div>
+                <div className={`text-xs mt-0.5 ${selected ? 'text-slate-300' : 'text-slate-400'}`}>{subtitle}</div>
               </button>
             )
           })}
@@ -341,46 +435,25 @@ export default function DiagnoseForm({ onSuccess }: Props) {
           className={
             'w-full inline-flex items-center justify-center gap-2 py-3 rounded-xl ' +
             'text-base font-medium transition-all duration-150 ' +
-            (loading
-              ? 'bg-slate-700 text-slate-400 cursor-not-allowed'
-              : 'bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-lg shadow-violet-500/25')
+            'bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-lg shadow-violet-500/25'
           }
         >
-          {loading ? (
-            <>
-              <Loader2 className="w-5 h-5 animate-spin" strokeWidth={1.5} />
-              <span className="truncate">{LOADING_MESSAGES[loadingMsgIdx]}</span>
-            </>
-          ) : (
-            <>
-              <Search className="w-5 h-5" strokeWidth={1.5} />
-              אבחן את השאלה
-            </>
-          )}
+          <Search className="w-5 h-5" strokeWidth={1.5} />
+          אבחן את השאלה
         </button>
 
-        {/* Progress bar */}
-        {loading && (
-          <div className="space-y-1.5">
-            <div className="h-1.5 w-full bg-slate-700 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-gradient-to-r from-violet-500 to-indigo-400 rounded-full transition-all duration-300 ease-out"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
-            <p className="text-xs text-slate-500 text-center">{Math.round(progress)}%</p>
-          </div>
-        )}
-
         {submitError && (
-          <div className="rounded-xl border border-rose-700/50 bg-rose-900/30 px-4 py-3 flex items-start justify-between gap-3">
+          <div
+            role="alert"
+            className="rounded-xl border border-rose-700/50 bg-rose-900/30 px-4 py-3 flex items-start justify-between gap-3"
+          >
             <p className="text-sm text-rose-300">
               {submitError || 'משהו השתבש. בדקי את חיבור האינטרנט ונסי שוב.'}
             </p>
             <button
               type="button"
               onClick={() => void doSubmit()}
-              className="text-sm font-medium text-rose-300 underline underline-offset-2 whitespace-nowrap hover:text-rose-200"
+              className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-700/50 border border-rose-600 text-sm text-rose-200 hover:bg-rose-700 transition-colors whitespace-nowrap"
             >
               נסי שוב
             </button>

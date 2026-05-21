@@ -27,3 +27,28 @@ body {
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.6;
 }
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: white !important;
+    color: black !important;
+    direction: rtl;
+  }
+  /* Show text readably in print */
+  .text-white, .text-slate-300, .text-slate-400 {
+    color: #111 !important;
+  }
+  .bg-slate-950, .bg-slate-900, .bg-slate-800 {
+    background: white !important;
+  }
+  .border-slate-800, .border-slate-700 {
+    border-color: #ddd !important;
+  }
+  /* Avoid page breaks inside cards */
+  section {
+    break-inside: avoid;
+  }
+}
