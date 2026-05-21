@@ -13,7 +13,9 @@ import {
   mockProjectBrief,
 } from '@/lib/mockData'
 
-const isMockMode = !process.env.ANTHROPIC_API_KEY
+function isMock() { return !process.env.ANTHROPIC_API_KEY }
+
+console.log('[anthropic] API key present:', !!process.env.ANTHROPIC_API_KEY)
 
 function getClient(): Anthropic {
   return new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
@@ -50,7 +52,7 @@ function mockDelay(): Promise<void> {
 }
 
 export async function generateQuestions(input: FormInput): Promise<BigQuestion[]> {
-  if (isMockMode) {
+  if (isMock()) {
     console.log('Mock mode active — no API key found')
     await mockDelay()
     return mockBigQuestions
@@ -61,13 +63,15 @@ export async function generateQuestions(input: FormInput): Promise<BigQuestion[]
     const parsed = parseJSON<{ questions: BigQuestion[] }>(raw, 'generateQuestions')
     return parsed.questions
   } catch (err) {
+    console.error('[generateQuestions] Anthropic error:', err)
     if (err instanceof Error && err.message.startsWith('שגיאה')) throw err
-    throw new Error('שגיאת שרת: לא ניתן ליצור שאלות כרגע. אנא נסה שוב.')
+    const msg = err instanceof Error ? err.message : String(err)
+    throw new Error(`שגיאת שרת: ${msg}`)
   }
 }
 
 export async function diagnoseQuestion(input: DiagnoseInput): Promise<DiagnosisResult> {
-  if (isMockMode) {
+  if (isMock()) {
     console.log('Mock mode active — no API key found')
     await mockDelay()
     return mockDiagnosisResult
@@ -78,8 +82,10 @@ export async function diagnoseQuestion(input: DiagnoseInput): Promise<DiagnosisR
     const parsed = parseJSON<{ diagnosis: DiagnosisResult }>(raw, 'diagnoseQuestion')
     return parsed.diagnosis
   } catch (err) {
+    console.error('[diagnoseQuestion] Anthropic error:', err)
     if (err instanceof Error && err.message.startsWith('שגיאה')) throw err
-    throw new Error('שגיאת שרת: לא ניתן לאבחן את השאלה כרגע. אנא נסה שוב.')
+    const msg = err instanceof Error ? err.message : String(err)
+    throw new Error(`שגיאת שרת: ${msg}`)
   }
 }
 
@@ -87,7 +93,7 @@ export async function generateProjectBrief(params: {
   selectedQuestion: BigQuestion
   originalInput: FormInput | DiagnoseInput
 }): Promise<ProjectBrief> {
-  if (isMockMode) {
+  if (isMock()) {
     console.log('Mock mode active — no API key found')
     await mockDelay()
     return mockProjectBrief
@@ -98,7 +104,9 @@ export async function generateProjectBrief(params: {
     const parsed = parseJSON<{ brief: ProjectBrief }>(raw, 'generateProjectBrief')
     return parsed.brief
   } catch (err) {
+    console.error('[generateProjectBrief] Anthropic error:', err)
     if (err instanceof Error && err.message.startsWith('שגיאה')) throw err
-    throw new Error('שגיאת שרת: לא ניתן ליצור תיק פרויקט כרגע. אנא נסה שוב.')
+    const msg = err instanceof Error ? err.message : String(err)
+    throw new Error(`שגיאת שרת: ${msg}`)
   }
 }

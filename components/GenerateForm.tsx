@@ -399,7 +399,7 @@ export default function GenerateForm({ onSuccess }: Props) {
         {submitError && (
           <div className="rounded-xl border border-rose-700/50 bg-rose-900/30 px-4 py-3 flex items-start justify-between gap-3">
             <p className="text-sm text-rose-300">
-              משהו השתבש. בדקי את חיבור האינטרנט ונסי שוב.
+              {submitError || 'משהו השתבש. בדקי את חיבור האינטרנט ונסי שוב.'}
             </p>
             <button
               type="button"
