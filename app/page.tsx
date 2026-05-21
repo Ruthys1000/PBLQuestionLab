@@ -5,10 +5,16 @@ import {
   FlaskConical,
   Search,
   ChevronRight,
+  ChevronDown,
+  ChevronUp,
   RotateCcw,
   Loader2,
   BookOpen,
   RefreshCw,
+  Copy,
+  Check,
+  Printer,
+  AlertTriangle,
 } from 'lucide-react'
 import type {
   AppMode,
@@ -17,10 +23,109 @@ import type {
   FormInput,
   DiagnoseInput,
   ProjectBrief,
+  StressTest,
 } from '@/types'
 import { createProjectBrief, createQuestions } from '@/lib/apiClient'
 import GenerateForm from '@/components/GenerateForm'
 import DiagnoseForm from '@/components/DiagnoseForm'
+import Toast from '@/components/Toast'
+
+// ─── Stress test ──────────────────────────────────────────────────────────────
+
+const STRESS_LABELS: Record<keyof Omit<StressTest, 'overall_score'>, string> = {
+  open_ended: 'שאלה פתוחה',
+  content_connection: 'קשר לתוכן',
+  authenticity: 'אותנטיות',
+  age_appropriate: 'התאמת גיל',
+  tension_dilemma: 'מתח ודילמה',
+  interdisciplinary: 'בין-תחומי',
+  independent_inquiry: 'חקירה עצמאית',
+  meaningful_product: 'תוצר משמעותי',
+  information_available: 'מידע זמין',
+  not_googleable: 'לא ניתן לגגל',
+}
+
+function StressTestPanel({ stressTest }: { stressTest: StressTest }) {
+  const [open, setOpen] = useState(false)
+  const criteria = Object.entries(STRESS_LABELS) as [keyof typeof STRESS_LABELS, string][]
+
+  return (
+    <div className="mt-4 rounded-xl border border-slate-700 bg-slate-800/50 overflow-hidden">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-slate-300 hover:text-white transition-colors"
+      >
+        <span className="flex items-center gap-2">
+          <span>מבחן לחץ פדגוגי</span>
+          <span className="text-xs bg-slate-700 text-slate-400 px-2 py-0.5 rounded-full">
+            {stressTest.overall_score.toFixed(1)} / 10
+          </span>
+        </span>
+        {open
+          ? <ChevronUp className="w-4 h-4 text-slate-500" strokeWidth={1.5} />
+          : <ChevronDown className="w-4 h-4 text-slate-500" strokeWidth={1.5} />
+        }
+      </button>
+
+      {open && (
+        <div className="px-4 pb-4 border-t border-slate-700 pt-3 space-y-3">
+          {criteria.map(([key, label]) => {
+            const { score, explanation } = stressTest[key]
+            const barColor = score >= 8 ? 'bg-emerald-500' : score >= 5 ? 'bg-amber-500' : 'bg-rose-500'
+            const textColor = score >= 8 ? 'text-emerald-400' : score >= 5 ? 'text-amber-400' : 'text-rose-400'
+            return (
+              <div key={key}>
+                <div className="flex items-center gap-3 mb-0.5">
+                  <span className="text-xs text-slate-400 flex-1 truncate">{label}</span>
+                  <div className="w-20 h-1.5 bg-slate-700 rounded-full overflow-hidden shrink-0">
+                    <div
+                      className={`h-full ${barColor} rounded-full`}
+                      style={{ width: `${score * 10}%` }}
+                    />
+                  </div>
+                  <span className={`text-xs font-bold ${textColor} w-5 text-start shrink-0`}>
+                    {score}
+                  </span>
+                </div>
+                {explanation && (
+                  <p className="text-xs text-slate-500 leading-relaxed">{explanation}</p>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─── Copy button ──────────────────────────────────────────────────────────────
+
+function CopyButton({ text, label = 'העתק' }: { text: string; label?: string }) {
+  const [copied, setCopied] = useState(false)
+
+  async function handleCopy() {
+    await navigator.clipboard.writeText(text)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={() => void handleCopy()}
+      title={label}
+      aria-label={label}
+      className="shrink-0 p-1.5 rounded-lg text-slate-500 hover:text-violet-400 hover:bg-slate-700/50 transition-colors"
+    >
+      {copied
+        ? <Check className="w-4 h-4 text-emerald-400" strokeWidth={1.5} />
+        : <Copy className="w-4 h-4" strokeWidth={1.5} />
+      }
+    </button>
+  )
+}
 
 // ─── Results screen ───────────────────────────────────────────────────────────
 
@@ -45,40 +150,145 @@ function ResultsScreen({
   regenerateLoading: boolean
   regenerateError: string | null
 }) {
-  const q = questions[0]
-  if (!q) return null
-
-  const selected = selectedQuestion?.id === q.id
+  if (!questions.length) return null
 
   return (
     <div className="space-y-4">
 
-      {/* The question card */}
-      <button
-        type="button"
-        onClick={() => onSelectQuestion(q)}
-        className={
-          'w-full text-start p-4 rounded-xl border transition-all duration-150 ' +
-          (selected
-            ? 'border-violet-500 bg-slate-800 shadow-lg shadow-violet-500/20'
-            : 'border-slate-700 bg-slate-800 hover:border-slate-500')
-        }
-      >
-        <div className="flex items-start justify-between gap-3">
-          <p className="text-sm font-medium text-white leading-relaxed">{q.question}</p>
-          <span className={
-            'shrink-0 text-xs font-semibold rounded-full px-2 py-0.5 ' +
-            (selected
-              ? 'bg-violet-500/20 text-violet-300'
-              : 'bg-slate-700 text-slate-400')
-          }>
-            {q.stress_test.overall_score.toFixed(1)}
-          </span>
-        </div>
-        {selected && q.why_it_works && (
-          <p className="mt-2 text-xs text-slate-400 leading-relaxed">{q.why_it_works}</p>
-        )}
-      </button>
+      {/* Question cards */}
+      {questions.map((q) => {
+        const selected = selectedQuestion?.id === q.id
+        return (
+          <div key={q.id} className="space-y-0">
+            <button
+              type="button"
+              onClick={() => onSelectQuestion(q)}
+              className={
+                'w-full text-start p-4 rounded-xl border transition-all duration-150 ' +
+                (selected
+                  ? 'border-violet-500 bg-slate-800 shadow-lg shadow-violet-500/20'
+                  : 'border-slate-700 bg-slate-800 hover:border-slate-500')
+              }
+            >
+              <div className="flex items-start justify-between gap-3">
+                <p className="text-sm font-medium text-white leading-relaxed">{q.question}</p>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <span className={
+                    'text-xs font-semibold rounded-full px-2 py-0.5 ' +
+                    (selected
+                      ? 'bg-violet-500/20 text-violet-300'
+                      : 'bg-slate-700 text-slate-400')
+                  }>
+                    {q.stress_test.overall_score.toFixed(1)}
+                  </span>
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <CopyButton text={q.question} label="העתק שאלה" />
+                  </div>
+                </div>
+              </div>
+            </button>
+
+            {/* Expanded details when selected */}
+            {selected && (
+              <div className="border border-t-0 border-violet-500/40 rounded-b-xl bg-slate-800/50 px-4 pb-4 pt-3 space-y-4">
+
+                {/* Why it works */}
+                {q.why_it_works && (
+                  <div>
+                    <p className="text-xs font-semibold text-slate-400 mb-1">למה זה עובד</p>
+                    <p className="text-xs text-slate-300 leading-relaxed">{q.why_it_works}</p>
+                  </div>
+                )}
+
+                {/* Strengths + Weaknesses */}
+                {(q.strengths.length > 0 || q.weaknesses.length > 0) && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {q.strengths.length > 0 && (
+                      <div>
+                        <p className="text-xs font-semibold text-emerald-400 mb-1.5">חוזקות</p>
+                        <ul className="space-y-1">
+                          {q.strengths.map((s, i) => (
+                            <li key={i} className="text-xs text-slate-300 flex gap-1.5">
+                              <span className="text-emerald-500 shrink-0">✓</span>
+                              {s}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {q.weaknesses.length > 0 && (
+                      <div>
+                        <p className="text-xs font-semibold text-rose-400 mb-1.5">נקודות לשיפור</p>
+                        <ul className="space-y-1">
+                          {q.weaknesses.map((w, i) => (
+                            <li key={i} className="text-xs text-slate-300 flex gap-1.5">
+                              <span className="text-rose-500 shrink-0">✗</span>
+                              {w}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Sub-questions */}
+                {q.sub_questions.length > 0 && (
+                  <div>
+                    <p className="text-xs font-semibold text-slate-400 mb-1.5">שאלות משנה</p>
+                    <ul className="space-y-1">
+                      {q.sub_questions.map((sq, i) => (
+                        <li key={i} className="text-xs text-slate-300 flex gap-1.5">
+                          <span className="text-violet-400 shrink-0 font-medium">{i + 1}.</span>
+                          {sq}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Product ideas */}
+                {q.product_ideas.length > 0 && (
+                  <div>
+                    <p className="text-xs font-semibold text-slate-400 mb-1.5">רעיונות לתוצרים</p>
+                    <ul className="space-y-1">
+                      {q.product_ideas.map((p, i) => (
+                        <li key={i} className="text-xs text-slate-300 flex gap-1.5">
+                          <span className="text-violet-400 shrink-0">•</span>
+                          {p}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Alternative formulations */}
+                {q.alternative_formulations.length > 0 && (
+                  <div>
+                    <p className="text-xs font-semibold text-slate-400 mb-1.5">ניסוחים חלופיים</p>
+                    <div className="space-y-2">
+                      {q.alternative_formulations.map((alt, i) => (
+                        <div key={i} className="p-3 rounded-lg border border-slate-700 bg-slate-800">
+                          <div className="flex items-start gap-2">
+                            <p className="text-xs font-medium text-white flex-1 leading-relaxed">{alt.question}</p>
+                            <CopyButton text={alt.question} label="העתק ניסוח" />
+                          </div>
+                          {alt.explanation && (
+                            <p className="text-xs text-slate-500 mt-1">{alt.explanation}</p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Stress test panel */}
+                <StressTestPanel stressTest={q.stress_test} />
+              </div>
+            )}
+          </div>
+        )
+      })}
 
       {/* Try again */}
       <button
@@ -95,7 +305,7 @@ function ResultsScreen({
         ) : (
           <>
             <RefreshCw className="w-4 h-4" strokeWidth={1.5} />
-            נסה שאלה אחרת
+            ייצר ניסוח חדש
           </>
         )}
       </button>
@@ -104,7 +314,7 @@ function ResultsScreen({
       )}
 
       {/* Generate brief */}
-      {selected && (
+      {selectedQuestion && (
         <div className="space-y-2 pt-1">
           <button
             type="button"
@@ -197,13 +407,19 @@ function DiagnosisScreen({ diagnosis }: { diagnosis: DiagnosisResult }) {
           <div className="space-y-3">
             {diagnosis.alternative_formulations.map((alt, i) => (
               <div key={i} className="p-4 rounded-xl border border-slate-700 bg-slate-800 space-y-1">
-                <p className="text-sm font-medium text-white">{alt.question}</p>
+                <div className="flex items-start gap-2">
+                  <p className="text-sm font-medium text-white flex-1">{alt.question}</p>
+                  <CopyButton text={alt.question} label="העתק ניסוח" />
+                </div>
                 <p className="text-xs text-slate-400">{alt.explanation}</p>
               </div>
             ))}
           </div>
         </div>
       )}
+
+      {/* Stress test panel */}
+      <StressTestPanel stressTest={diagnosis.stress_test} />
     </div>
   )
 }
@@ -217,9 +433,12 @@ function BriefScreen({ brief }: { brief: ProjectBrief }) {
       <div className="space-y-3">
         <h3 className="text-2xl font-bold text-white">{brief.project_title}</h3>
         <div className="p-4 rounded-xl bg-violet-500/10 border border-violet-500/30">
-          <p className="text-sm font-medium text-violet-200 leading-relaxed">
-            {brief.driving_question}
-          </p>
+          <div className="flex items-start gap-2">
+            <p className="text-sm font-medium text-violet-200 leading-relaxed flex-1">
+              {brief.driving_question}
+            </p>
+            <CopyButton text={brief.driving_question} label="העתק שאלה מנחה" />
+          </div>
         </div>
         {brief.teacher_summary && (
           <p className="text-sm text-slate-400 leading-relaxed">{brief.teacher_summary}</p>
@@ -235,6 +454,51 @@ function BriefScreen({ brief }: { brief: ProjectBrief }) {
               <li key={i} className="text-sm text-slate-300 flex gap-2">
                 <span className="text-violet-400 shrink-0 font-semibold">{i + 1}.</span>
                 {g}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {/* Knowledge content */}
+      {brief.knowledge_content.length > 0 && (
+        <section className="pt-6 border-t border-slate-800">
+          <h4 className="text-sm font-semibold text-slate-300 mb-3">תכנים ומושגי מפתח</h4>
+          <ul className="space-y-1.5">
+            {brief.knowledge_content.map((k, i) => (
+              <li key={i} className="text-sm text-slate-300 flex gap-2">
+                <span className="text-violet-400 shrink-0">•</span>
+                {k}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {/* Skills */}
+      {brief.skills.length > 0 && (
+        <section className="pt-6 border-t border-slate-800">
+          <h4 className="text-sm font-semibold text-slate-300 mb-3">מיומנויות</h4>
+          <ul className="space-y-1.5">
+            {brief.skills.map((s, i) => (
+              <li key={i} className="text-sm text-slate-300 flex gap-2">
+                <span className="text-violet-400 shrink-0">•</span>
+                {s}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {/* Sub-questions */}
+      {brief.sub_questions.length > 0 && (
+        <section className="pt-6 border-t border-slate-800">
+          <h4 className="text-sm font-semibold text-slate-300 mb-3">שאלות משנה</h4>
+          <ul className="space-y-2">
+            {brief.sub_questions.map((sq, i) => (
+              <li key={i} className="text-sm text-slate-300 flex gap-2">
+                <span className="text-violet-400 shrink-0 font-semibold">{i + 1}.</span>
+                {sq}
               </li>
             ))}
           </ul>
@@ -274,7 +538,31 @@ function BriefScreen({ brief }: { brief: ProjectBrief }) {
       {brief.rubric.length > 0 && (
         <section className="pt-6 border-t border-slate-800">
           <h4 className="text-sm font-semibold text-slate-300 mb-3">רובריקה</h4>
-          <div className="overflow-x-auto rounded-xl border border-slate-700">
+
+          {/* Mobile: card layout */}
+          <div className="md:hidden space-y-4">
+            {brief.rubric.map((row, i) => (
+              <div key={i} className="rounded-xl border border-slate-700 bg-slate-800 overflow-hidden">
+                <div className="px-4 py-2.5 bg-slate-700/50 border-b border-slate-700">
+                  <p className="text-sm font-semibold text-white">{row.criterion}</p>
+                </div>
+                <div className="divide-y divide-slate-800">
+                  {(['מתחיל', 'מתפתח', 'מיומן'] as const).map((level, li) => {
+                    const vals = [row.beginning, row.developing, row.proficient]
+                    return (
+                      <div key={level} className="px-4 py-3 flex gap-3">
+                        <span className="text-xs font-semibold text-violet-400 w-12 shrink-0 pt-0.5">{level}</span>
+                        <p className="text-sm text-slate-300 leading-relaxed">{vals[li]}</p>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop: table layout */}
+          <div className="hidden md:block overflow-x-auto rounded-xl border border-slate-700">
             <table className="w-full text-sm">
               <thead className="bg-slate-800/50 border-b border-slate-700">
                 <tr>
@@ -344,25 +632,39 @@ function ConfirmDialog({
   onCancel: () => void
 }) {
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 px-6">
-      <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 max-w-sm w-full shadow-2xl space-y-5">
-        <p className="text-white font-medium leading-relaxed">
-          האם להתחיל מחדש? הנתונים הנוכחיים יימחקו.
-        </p>
+    <div
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 px-6"
+      onClick={onCancel}
+    >
+      <div
+        className="bg-slate-900 border border-slate-700 rounded-2xl p-6 max-w-sm w-full shadow-2xl space-y-4"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-start gap-3">
+          <div className="p-2 rounded-lg bg-amber-900/30 border border-amber-700/40 shrink-0">
+            <AlertTriangle className="w-5 h-5 text-amber-400" strokeWidth={1.5} />
+          </div>
+          <div>
+            <h2 className="text-base font-bold text-white mb-1">התחלה מחדש</h2>
+            <p className="text-sm text-slate-400 leading-relaxed">
+              כל הנתונים הנוכחיים יימחקו ולא ניתן יהיה לשחזר אותם.
+            </p>
+          </div>
+        </div>
         <div className="flex gap-3">
           <button
             type="button"
-            onClick={onConfirm}
+            onClick={onCancel}
             className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-sm font-medium hover:from-violet-500 hover:to-indigo-500 transition-all"
           >
-            כן, התחל מחדש
+            ביטול
           </button>
           <button
             type="button"
-            onClick={onCancel}
-            className="flex-1 py-2.5 rounded-xl border border-slate-700 text-slate-300 text-sm font-medium hover:border-slate-500 hover:text-white transition-colors"
+            onClick={onConfirm}
+            className="flex-1 py-2.5 rounded-xl border border-rose-600/60 bg-rose-900/30 text-rose-300 text-sm font-medium hover:bg-rose-900/60 hover:border-rose-500 transition-all"
           >
-            ביטול
+            כן, התחל מחדש
           </button>
         </div>
       </div>
@@ -386,6 +688,11 @@ export default function HomePage() {
   const [briefError, setBriefError] = useState<string | null>(null)
   const [regenerateLoading, setRegenerateLoading] = useState(false)
   const [regenerateError, setRegenerateError] = useState<string | null>(null)
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' } | null>(null)
+
+  function showToast(message: string, type: 'success' | 'info' = 'success') {
+    setToast({ message, type })
+  }
 
   function resetAll() {
     setMode('home')
@@ -425,6 +732,7 @@ export default function HomePage() {
       setProjectBrief(brief)
       setMockMode(m)
       setMode('brief')
+      showToast('תיק הפרויקט נוצר בהצלחה!')
     } catch (err) {
       setBriefError(err instanceof Error ? err.message : 'שגיאה ביצירת תיק פרויקט')
     } finally {
@@ -442,6 +750,7 @@ export default function HomePage() {
       setQuestions(qs)
       setMockMode(m)
       if (qs[0]) setSelectedQuestion(qs[0])
+      showToast('שאלה חדשה נוצרה!', 'info')
     } catch (err) {
       setRegenerateError(err instanceof Error ? err.message : 'שגיאה')
     } finally {
@@ -471,7 +780,7 @@ export default function HomePage() {
             <p className="text-xl md:text-2xl font-semibold text-white leading-relaxed">
               שאלות שאי אפשר לפתור ב-ChatGPT.
             </p>
-            <p className="text-base text-slate-400 leading-relaxed max-w-lg mx-auto">
+            <p className="text-base text-slate-300 leading-relaxed max-w-lg mx-auto">
               כלי AI שעוזר למורים לבנות שאלות מנחות שמחייבות חקר אמיתי —
               עם מתח, דילמה ותוצר משמעותי.
             </p>
@@ -518,13 +827,13 @@ export default function HomePage() {
   return (
     <main className="min-h-screen bg-slate-950">
       {mockMode && (
-        <div className="bg-amber-900/30 border-b border-amber-700/50 px-4 py-2.5 text-center">
+        <div className="bg-amber-900/30 border-b border-amber-700/50 px-4 py-2.5 text-center no-print">
           <span className="text-sm text-amber-300">פועל במצב הדגמה — אין מפתח API</span>
         </div>
       )}
 
       {/* Navigation bar */}
-      <div className="bg-slate-900 border-b border-slate-800">
+      <div className="bg-slate-900 border-b border-slate-800 no-print">
         <div className="max-w-3xl mx-auto px-6 py-3 flex items-center justify-between">
           <button
             type="button"
@@ -581,22 +890,41 @@ export default function HomePage() {
         )}
 
         {/* Results */}
-        {mode === 'results' && questions.length > 0 && (
+        {mode === 'results' && (
           <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6 md:p-8">
-            <div className="pb-4 border-b border-slate-800 mb-6">
-              <h2 className="text-lg font-bold text-white">השאלה המנחה שלך</h2>
+            <div className="pb-4 border-b border-slate-800 mb-6 flex items-center justify-between">
+              <h2 className="text-lg font-bold text-white">
+                השאלה המנחה שלך
+                {questions.length > 1 && (
+                  <span className="ms-2 text-sm font-normal text-slate-500">({questions.length})</span>
+                )}
+              </h2>
             </div>
-            <ResultsScreen
-              questions={questions}
-              selectedQuestion={selectedQuestion}
-              onSelectQuestion={setSelectedQuestion}
-              onGenerateBrief={() => void handleGenerateBrief()}
-              briefLoading={briefLoading}
-              briefError={briefError}
-              onGenerateAgain={() => void handleGenerateAgain()}
-              regenerateLoading={regenerateLoading}
-              regenerateError={regenerateError}
-            />
+            {questions.length > 0 ? (
+              <ResultsScreen
+                questions={questions}
+                selectedQuestion={selectedQuestion}
+                onSelectQuestion={setSelectedQuestion}
+                onGenerateBrief={() => void handleGenerateBrief()}
+                briefLoading={briefLoading}
+                briefError={briefError}
+                onGenerateAgain={() => void handleGenerateAgain()}
+                regenerateLoading={regenerateLoading}
+                regenerateError={regenerateError}
+              />
+            ) : (
+              <div className="text-center py-8 space-y-3">
+                <p className="text-slate-400 text-sm">לא הוחזרו שאלות. נסי שוב.</p>
+                <button
+                  type="button"
+                  onClick={() => void handleGenerateAgain()}
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-700 text-sm text-slate-300 hover:border-slate-500 hover:text-white transition-colors"
+                >
+                  <RefreshCw className="w-4 h-4" strokeWidth={1.5} />
+                  נסי שנית
+                </button>
+              </div>
+            )}
           </div>
         )}
 
@@ -613,8 +941,16 @@ export default function HomePage() {
         {/* Brief */}
         {mode === 'brief' && projectBrief && (
           <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6 md:p-8">
-            <div className="pb-4 border-b border-slate-800 mb-6">
+            <div className="pb-4 border-b border-slate-800 mb-6 flex items-center justify-between no-print">
               <h2 className="text-lg font-bold text-white">תיק פרויקט</h2>
+              <button
+                type="button"
+                onClick={() => window.print()}
+                className="inline-flex items-center gap-1.5 text-sm text-slate-400 hover:text-white transition-colors px-3 py-1.5 rounded-lg border border-slate-700 hover:border-slate-500"
+              >
+                <Printer className="w-4 h-4" strokeWidth={1.5} />
+                הדפסה
+              </button>
             </div>
             <BriefScreen brief={projectBrief} />
           </div>
@@ -625,6 +961,14 @@ export default function HomePage() {
         <ConfirmDialog
           onConfirm={resetAll}
           onCancel={() => setShowConfirm(false)}
+        />
+      )}
+
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onDismiss={() => setToast(null)}
         />
       )}
     </main>
