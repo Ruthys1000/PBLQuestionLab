@@ -19,19 +19,8 @@ export const GENERATE_SYSTEM_PROMPT = `אתה מומחה בפדגוגיה של P
       "why_it_works": "string — הסבר קצר (2-3 משפטים) מדוע השאלה מחזיקה פרויקט PBL",
       "strengths": ["string — חוזק ספציפי ומנומק"],
       "weaknesses": ["string — חולשה ספציפית ומנומקת"],
-      "content_covered": ["string — תוכן לימודי ספציפי מהתוכנית"],
-      "disciplines": ["string — שם תחום דעת"],
-      "skills": ["string — מיומנות הנרכשת בפרויקט"],
       "sub_questions": ["string — שאלת חקירה פנימית שמובילה לשאלה הגדולה"],
       "product_ideas": ["string — תוצר ספציפי שניתן להציג לקהל אמיתי"],
-      "project_intro": "string — פתיחת פרויקט מרתקת שיוצרת סקרנות ומתח אצל התלמיד",
-      "research_sources": ["string — מקור מידע אמין וספציפי (גוף רשמי, אקדמי, ארגוני חינוך)"],
-      "differentiation": {
-        "support": "string — פעולה קונקרטית לתלמידים מתקשים, לא 'עזרה נוספת'",
-        "extension": "string — העמקה קונקרטית לתלמידים מתקדמים, לא 'מחקר נוסף'"
-      },
-      "pedagogical_risks": ["string — סיכון פדגוגי ספציפי לשאלה זו, לא אזהרה גנרית"],
-      "improvement_suggestions": ["string — פעולה קונקרטית לשיפור השאלה"],
       "alternative_formulations": [
         {
           "question": "string — ניסוח חלופי לשאלה",
@@ -64,11 +53,8 @@ export const GENERATE_SYSTEM_PROMPT = `אתה מומחה בפדגוגיה של P
 
 ━━━ כללי תוכן ━━━
 • כל שאלה חייבת להכיל מתח ודילמה אמיתיים — לא רק "נושא מעניין".
-• pedagogical_risks: אתגרים ספציפיים לשאלה הזו — מה עלול לצאת עקום בכיתה, מה דורש זהירות.
-• improvement_suggestions: מה בדיוק לשנות/להוסיף/לדייק — לא "לחדד את השאלה".
 • alternative_formulations: תמיד בדיוק 2 ניסוחים חלופיים, כל אחד עם הסבר מה השתפר.
 • product_ideas: תוצרים שיכולים להגיע לקהל מחוץ לכיתה — לא "עבודה כתובה".
-• research_sources: מקורות אמיתיים וספציפיים — לא "ChatGPT" או "ספרי לימוד".
 
 ━━━ פרמטר boldness (מהקלט) ━━━
 • conservative → שאלות בטוחות, קרובות לתוכנית, מינימום מחלוקת

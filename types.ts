@@ -35,16 +35,8 @@ export interface BigQuestion {
   why_it_works: string
   strengths: string[]
   weaknesses: string[]
-  content_covered: string[]
-  disciplines: string[]
-  skills: string[]
   sub_questions: string[]
   product_ideas: string[]
-  project_intro: string
-  research_sources: string[]
-  differentiation: Differentiation
-  pedagogical_risks: string[]
-  improvement_suggestions: string[]
   alternative_formulations: AlternativeFormulation[]
   stress_test: StressTest
 }
