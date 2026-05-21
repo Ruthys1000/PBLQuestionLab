@@ -35,7 +35,7 @@ async function callClaude(
       {
         model: 'claude-sonnet-4-6',
         max_tokens: maxTokens,
-        system: [{ type: 'text', text: systemPrompt, cache_control: { type: 'ephemeral' } }],
+        system: systemPrompt,
         messages: [{ role: 'user', content: userMessage }],
       },
       { signal: controller.signal },
