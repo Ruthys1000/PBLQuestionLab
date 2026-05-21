@@ -329,17 +329,40 @@ function ResultsScreen({
                   <div>
                     <p className="text-xs font-semibold text-slate-400 mb-1.5">ניסוחים חלופיים</p>
                     <div className="space-y-2">
-                      {q.alternative_formulations.map((alt, i) => (
-                        <div key={i} className="p-3 rounded-lg border border-slate-700 bg-slate-800">
-                          <div className="flex items-start gap-2">
-                            <p className="text-xs font-medium text-white flex-1 leading-relaxed">{alt.question}</p>
-                            <CopyButton text={alt.question} label="העתק ניסוח" />
+                      {q.alternative_formulations.map((alt, i) => {
+                        const isAltSelected =
+                          selectedQuestion?.id === q.id && selectedQuestion?.question === alt.question
+                        return (
+                          <div
+                            key={i}
+                            className={`p-3 rounded-lg border transition-colors ${
+                              isAltSelected
+                                ? 'border-violet-500 bg-violet-500/10'
+                                : 'border-slate-700 bg-slate-800'
+                            }`}
+                          >
+                            <div className="flex items-start gap-2">
+                              <p className="text-xs font-medium text-white flex-1 leading-relaxed">{alt.question}</p>
+                              <CopyButton text={alt.question} label="העתק ניסוח" />
+                            </div>
+                            {alt.explanation && (
+                              <p className="text-xs text-slate-500 mt-1">{alt.explanation}</p>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => onSelectQuestion({ ...q, question: alt.question })}
+                              disabled={isAltSelected}
+                              className={`mt-2 text-[11px] font-medium px-2.5 py-1 rounded-lg transition-colors ${
+                                isAltSelected
+                                  ? 'bg-violet-600/30 text-violet-300 cursor-default'
+                                  : 'bg-slate-700 text-slate-300 hover:bg-violet-600/20 hover:text-violet-300'
+                              }`}
+                            >
+                              {isAltSelected ? '✓ נבחרה לתיק הפרויקט' : 'בחר שאלה זו לתיק הפרויקט'}
+                            </button>
                           </div>
-                          {alt.explanation && (
-                            <p className="text-xs text-slate-500 mt-1">{alt.explanation}</p>
-                          )}
-                        </div>
-                      ))}
+                        )
+                      })}
                     </div>
                   </div>
                 )}
