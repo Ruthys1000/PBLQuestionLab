@@ -919,11 +919,11 @@ export default function HomePage() {
                 PBL Question Lab
               </h1>
               <p className="text-xl md:text-2xl font-semibold text-white leading-relaxed">
-                שאלות שמחייבות חקר אמיתי.
+                שאלות PBL — עם ניקוד, משוב ותיק פרויקט.
               </p>
               <p className="text-base text-slate-400 leading-relaxed max-w-xl mx-auto">
-                כלי AI שעוזר למורים לבנות שאלות מנחות שמחייבות חקר אמיתי —
-                עם מתח, דילמה ותוצר משמעותי.
+                כלי AI למורים, מרצים ומנהלי למידה. כותבים נושא, כיתה ומקצועות —
+                ומקבלים שאלה מנחה בין-תחומית עם ניקוד פדגוגי, משוב ספציפי ותיק פרויקט מוכן לשימוש.
               </p>
             </div>
           </div>
@@ -964,9 +964,14 @@ export default function HomePage() {
                 </div>
                 <h3 className="text-sm font-bold text-white">שאלה מנחה חדשה</h3>
               </div>
-              <ul className="space-y-2">
-                {['ניקוד כן ב-10 קריטריונים PBL', 'חוזקות וחולשות ספציפיות', 'שאלות משנה לחקירה', '2 ניסוחים חלופיים'].map((item) => (
-                  <li key={item} className="flex items-start gap-2 text-xs text-slate-400">
+              <ul className="space-y-2.5">
+                {[
+                  'ציון מיידי: האם השאלה שלך באמת מחזיקה פרויקט?',
+                  'בדיוק מה עובד ומה לא — לא "לשפר", אלא למה',
+                  'שאלות חקירה מוכנות לתת לתלמידים',
+                  '2 ניסוחים חלופיים לבחור מהם',
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-2 text-xs text-slate-300">
                     <span className="text-violet-400 shrink-0 mt-0.5">✓</span>
                     {item}
                   </li>
@@ -974,7 +979,7 @@ export default function HomePage() {
               </ul>
               {/* Mini stress test preview */}
               <div className="space-y-2 pt-3 border-t border-slate-800">
-                <p className="text-[10px] text-slate-600 uppercase tracking-wider">דוגמה לניקוד</p>
+                <p className="text-xs text-slate-500 uppercase tracking-wider">דוגמה לניקוד</p>
                 {([['פתוח לפרשנות', 8, 'emerald'], ['אותנטיות', 6, 'amber'], ['מתח / דילמה', 3, 'rose']] as const).map(([label, score, color]) => (
                   <div key={label} className="flex items-center gap-2" dir="ltr">
                     <div className="flex-1 h-1.5 bg-slate-800 rounded-full overflow-hidden">
@@ -983,10 +988,10 @@ export default function HomePage() {
                         style={{ width: `${score * 10}%` }}
                       />
                     </div>
-                    <span className={`text-[10px] font-bold w-5 text-start shrink-0 ${color === 'emerald' ? 'text-emerald-400' : color === 'amber' ? 'text-amber-400' : 'text-rose-400'}`}>
+                    <span className={`text-xs font-bold w-5 text-start shrink-0 ${color === 'emerald' ? 'text-emerald-400' : color === 'amber' ? 'text-amber-400' : 'text-rose-400'}`}>
                       {score}
                     </span>
-                    <span className="text-[10px] text-slate-500 w-24 text-start shrink-0">{label}</span>
+                    <span className="text-xs text-slate-400 w-24 text-start shrink-0">{label}</span>
                   </div>
                 ))}
               </div>
@@ -1000,9 +1005,14 @@ export default function HomePage() {
                 </div>
                 <h3 className="text-sm font-bold text-white">אבחון שאלה קיימת</h3>
               </div>
-              <ul className="space-y-2">
-                {['מה עובד ומה לא, ולמה', 'השפעה בפועל על הכיתה', 'כיוון מדויק לשיפור', '2 ניסוחים משופרים מנומקים'].map((item) => (
-                  <li key={item} className="flex items-start gap-2 text-xs text-slate-400">
+              <ul className="space-y-2.5">
+                {[
+                  'מה בדיוק חזק בשאלה — ומה פוגע בלמידה',
+                  'מה יקרה בכיתה אם תשתמשי בה כפי שהיא',
+                  'הנחיה ברורה לאן לכתוב מחדש',
+                  '2 גרסאות משופרות עם הסבר מה השתנה',
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-2 text-xs text-slate-300">
                     <span className="text-indigo-400 shrink-0 mt-0.5">✓</span>
                     {item}
                   </li>
@@ -1010,12 +1020,12 @@ export default function HomePage() {
               </ul>
               <div className="pt-3 border-t border-slate-800 space-y-2">
                 <div className="bg-rose-900/20 border border-rose-700/30 rounded-lg p-3">
-                  <p className="text-[10px] text-rose-400 font-semibold mb-1">מה לא עובד</p>
-                  <p className="text-[10px] text-slate-500 leading-relaxed">שאלה סגורה שניתן לפתור ב-ChatGPT ללא חשיבה עצמאית</p>
+                  <p className="text-xs text-rose-400 font-semibold mb-1">מה לא עובד</p>
+                  <p className="text-xs text-slate-400 font-medium leading-relaxed">שאלה סגורה שניתן לפתור ב-ChatGPT ללא חשיבה עצמאית</p>
                 </div>
                 <div className="bg-emerald-900/20 border border-emerald-700/30 rounded-lg p-3">
-                  <p className="text-[10px] text-emerald-400 font-semibold mb-1">כיוון לשיפור</p>
-                  <p className="text-[10px] text-slate-500 leading-relaxed">הוסף דילמה ועמדה שדורשת הכרעה ערכית</p>
+                  <p className="text-xs text-emerald-400 font-semibold mb-1">כיוון לשיפור</p>
+                  <p className="text-xs text-slate-400 font-medium leading-relaxed">הוסף דילמה ועמדה שדורשת הכרעה ערכית</p>
                 </div>
               </div>
             </div>
@@ -1028,20 +1038,25 @@ export default function HomePage() {
                 </div>
                 <h3 className="text-sm font-bold text-white">תיק פרויקט מלא</h3>
               </div>
-              <ul className="space-y-2">
-                {['מטרות למידה מדידות', '4–6 שלבי חקירה מפורטים', 'רובריקת הערכה 3 רמות', 'בידול: תמיכה והעשרה'].map((item) => (
-                  <li key={item} className="flex items-start gap-2 text-xs text-slate-400">
+              <ul className="space-y-2.5">
+                {[
+                  'מטרות שאפשר לבדוק — לא "הבנה כללית"',
+                  'מה התלמידים עושים בכל שלב — לא מה המורה מסביר',
+                  'רובריקה מוכנה לשימוש ביום הראשון',
+                  'מה לתת למי שנתקע ולמי שרץ קדימה',
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-2 text-xs text-slate-300">
                     <span className="text-cyan-400 shrink-0 mt-0.5">✓</span>
                     {item}
                   </li>
                 ))}
               </ul>
               <div className="pt-3 border-t border-slate-800 space-y-1.5">
-                <p className="text-[10px] text-slate-600 uppercase tracking-wider">מה מוגדר בתיק</p>
+                <p className="text-xs text-slate-500 uppercase tracking-wider">מה מוגדר בתיק</p>
                 {['שם ושאלה מנחה', 'תכנים ומיומנויות', 'פעילות פתיחה', 'תוצרים לקהל אמיתי'].map((item) => (
                   <div key={item} className="flex items-center gap-2">
-                    <div className="w-1 h-1 rounded-full bg-cyan-600 shrink-0" />
-                    <span className="text-[10px] text-slate-500">{item}</span>
+                    <div className="w-1 h-1 rounded-full bg-cyan-500 shrink-0" />
+                    <span className="text-xs text-slate-400 font-medium">{item}</span>
                   </div>
                 ))}
               </div>
