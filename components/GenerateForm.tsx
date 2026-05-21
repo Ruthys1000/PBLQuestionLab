@@ -55,13 +55,13 @@ const INITIAL_FORM: FormInput = {
 // ─── Shared class strings ─────────────────────────────────────────────────────
 
 const inputCls =
-  'border border-gray-200 rounded-xl px-4 py-3 w-full text-gray-900 bg-white ' +
-  'focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent ' +
-  'placeholder:text-gray-400 transition-shadow text-sm'
+  'bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 w-full text-white ' +
+  'focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent ' +
+  'placeholder:text-slate-500 transition-all text-sm'
 
-const labelCls = 'flex items-center gap-2 text-sm font-medium text-gray-700 mb-1.5'
+const labelCls = 'flex items-center gap-2 text-sm font-medium text-slate-300 mb-1.5'
 
-const errorCls = 'text-red-500 text-xs mt-1'
+const errorCls = 'text-rose-400 text-xs mt-1'
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -154,9 +154,9 @@ export default function GenerateForm({ onSuccess }: Props) {
     <form onSubmit={handleSubmit} noValidate className="space-y-6">
 
       {/* ── Section header ── */}
-      <div className="pb-2 border-b border-gray-100">
-        <h2 className="text-lg font-semibold text-gray-900">פרטי הפרויקט</h2>
-        <p className="text-sm text-gray-500 mt-0.5">
+      <div className="pb-2 border-b border-slate-800">
+        <h2 className="text-lg font-semibold text-white">פרטי הפרויקט</h2>
+        <p className="text-sm text-slate-400 mt-0.5">
           מלאי את הפרטים ו-Claude יבנה עבורך שאלות מנחות מותאמות
         </p>
       </div>
@@ -167,9 +167,9 @@ export default function GenerateForm({ onSuccess }: Props) {
         {/* Topic */}
         <div>
           <label htmlFor="topic" className={labelCls}>
-            <BookOpen className="w-4 h-4 text-gray-400" strokeWidth={1.5} />
+            <BookOpen className="w-4 h-4 text-violet-400" strokeWidth={1.5} />
             נושא הלמידה
-            <span className="text-red-400">*</span>
+            <span className="text-rose-400">*</span>
           </label>
           <input
             id="topic"
@@ -186,9 +186,9 @@ export default function GenerateForm({ onSuccess }: Props) {
         {/* Grade */}
         <div>
           <label htmlFor="grade" className={labelCls}>
-            <GraduationCap className="w-4 h-4 text-gray-400" strokeWidth={1.5} />
+            <GraduationCap className="w-4 h-4 text-violet-400" strokeWidth={1.5} />
             שכבת גיל / קהל יעד
-            <span className="text-red-400">*</span>
+            <span className="text-rose-400">*</span>
           </label>
           <input
             id="grade"
@@ -206,10 +206,10 @@ export default function GenerateForm({ onSuccess }: Props) {
       {/* ── Subjects ── */}
       <div>
         <div className={labelCls}>
-          <Layers className="w-4 h-4 text-gray-400" strokeWidth={1.5} />
+          <Layers className="w-4 h-4 text-violet-400" strokeWidth={1.5} />
           תחומי דעת
-          <span className="text-red-400">*</span>
-          <span className="text-xs font-normal text-gray-400">(לפחות 2)</span>
+          <span className="text-rose-400">*</span>
+          <span className="text-xs font-normal text-slate-500">(לפחות 2)</span>
         </div>
         <div className="flex flex-wrap gap-2">
           {SUBJECT_OPTIONS.map((subject) => {
@@ -221,10 +221,10 @@ export default function GenerateForm({ onSuccess }: Props) {
                 onClick={() => toggleSubject(subject)}
                 disabled={loading}
                 className={
-                  'px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors duration-100 ' +
+                  'px-3 py-1.5 rounded-lg text-sm font-medium border transition-all duration-100 ' +
                   (selected
-                    ? 'bg-gray-900 text-white border-gray-900'
-                    : 'bg-white text-gray-700 border-gray-200 hover:border-gray-400')
+                    ? 'bg-violet-600 border-violet-600 text-white shadow-md shadow-violet-500/30'
+                    : 'bg-slate-800 border-slate-700 text-slate-300 hover:border-slate-500')
                 }
               >
                 {subject}
@@ -248,7 +248,7 @@ export default function GenerateForm({ onSuccess }: Props) {
             type="button"
             onClick={addCustomSubject}
             disabled={loading || !customSubjectInput.trim()}
-            className="shrink-0 inline-flex items-center gap-1 px-3 py-2 rounded-xl border border-gray-200 text-sm text-gray-700 hover:border-gray-400 disabled:opacity-40 transition-colors"
+            className="shrink-0 inline-flex items-center gap-1 px-3 py-2 rounded-xl bg-slate-700 border border-slate-600 text-sm text-slate-200 hover:border-slate-500 disabled:opacity-40 transition-colors"
           >
             <Plus className="w-4 h-4" strokeWidth={1.5} />
             הוסף
@@ -261,7 +261,7 @@ export default function GenerateForm({ onSuccess }: Props) {
             {customSubjects.map((s) => (
               <span
                 key={s}
-                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium bg-gray-900 text-white border border-gray-900"
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium bg-violet-600 border border-violet-600 text-white shadow-md shadow-violet-500/30"
               >
                 {s}
                 <button
@@ -283,9 +283,9 @@ export default function GenerateForm({ onSuccess }: Props) {
       {/* ── Learning goals (optional) ── */}
       <div>
         <label htmlFor="learning_goals" className={labelCls}>
-          <Target className="w-4 h-4 text-gray-400" strokeWidth={1.5} />
+          <Target className="w-4 h-4 text-violet-400" strokeWidth={1.5} />
           מטרות למידה
-          <span className="text-xs font-normal text-gray-400">(אופציונלי)</span>
+          <span className="text-xs font-normal text-slate-500">(אופציונלי)</span>
         </label>
         <textarea
           id="learning_goals"
@@ -301,9 +301,9 @@ export default function GenerateForm({ onSuccess }: Props) {
       {/* ── Required content (optional) ── */}
       <div>
         <label htmlFor="required_content" className={labelCls}>
-          <FileText className="w-4 h-4 text-gray-400" strokeWidth={1.5} />
+          <FileText className="w-4 h-4 text-violet-400" strokeWidth={1.5} />
           מושגים או תכנים שחייבים להיכלל
-          <span className="text-xs font-normal text-gray-400">(אופציונלי)</span>
+          <span className="text-xs font-normal text-slate-500">(אופציונלי)</span>
         </label>
         <textarea
           id="required_content"
@@ -319,7 +319,7 @@ export default function GenerateForm({ onSuccess }: Props) {
       {/* ── Boldness ── */}
       <div>
         <div className={labelCls}>
-          <Zap className="w-4 h-4 text-gray-400" strokeWidth={1.5} />
+          <Zap className="w-4 h-4 text-violet-400" strokeWidth={1.5} />
           רמת נועזות פדגוגית
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -332,14 +332,14 @@ export default function GenerateForm({ onSuccess }: Props) {
                 onClick={() => set('boldness', value)}
                 disabled={loading}
                 className={
-                  'rounded-xl px-4 py-3 text-start transition-colors duration-100 ' +
+                  'rounded-xl px-4 py-3 text-start transition-all duration-100 ' +
                   (selected
-                    ? 'border-2 border-gray-900 bg-gray-50'
-                    : 'border border-gray-200 bg-white hover:border-gray-400')
+                    ? 'border-2 border-violet-500 bg-slate-800 shadow-lg shadow-violet-500/20'
+                    : 'border border-slate-700 bg-slate-800 hover:border-slate-500')
                 }
               >
-                <div className="text-sm font-semibold text-gray-900">{label}</div>
-                <div className="text-xs text-gray-500 mt-0.5">{subtitle}</div>
+                <div className={`text-sm font-semibold ${selected ? 'text-violet-300' : 'text-white'}`}>{label}</div>
+                <div className="text-xs text-slate-400 mt-0.5">{subtitle}</div>
               </button>
             )
           })}
@@ -353,10 +353,10 @@ export default function GenerateForm({ onSuccess }: Props) {
           disabled={loading}
           className={
             'w-full inline-flex items-center justify-center gap-2 py-3 rounded-xl ' +
-            'text-base font-medium transition-colors duration-150 ' +
+            'text-base font-medium transition-all duration-150 ' +
             (loading
-              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              : 'bg-gray-900 text-white hover:bg-gray-700')
+              ? 'bg-slate-700 text-slate-400 cursor-not-allowed'
+              : 'bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-lg shadow-violet-500/25')
           }
         >
           {loading ? (
@@ -373,14 +373,14 @@ export default function GenerateForm({ onSuccess }: Props) {
         </button>
 
         {submitError && (
-          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 flex items-start justify-between gap-3">
-            <p className="text-sm text-red-700">
+          <div className="rounded-xl border border-rose-700/50 bg-rose-900/30 px-4 py-3 flex items-start justify-between gap-3">
+            <p className="text-sm text-rose-300">
               משהו השתבש. בדקי את חיבור האינטרנט ונסי שוב.
             </p>
             <button
               type="button"
               onClick={() => void doSubmit()}
-              className="text-sm font-medium text-red-700 underline underline-offset-2 whitespace-nowrap hover:text-red-900"
+              className="text-sm font-medium text-rose-300 underline underline-offset-2 whitespace-nowrap hover:text-rose-200"
             >
               נסי שוב
             </button>

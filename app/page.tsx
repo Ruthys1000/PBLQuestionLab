@@ -40,7 +40,7 @@ function ResultsScreen({
 }) {
   return (
     <div className="space-y-4">
-      <p className="text-sm text-gray-500">
+      <p className="text-sm text-slate-400">
         נמצאו {questions.length} שאלות מנחות — בחרי שאלה לצפייה ויצירת תיק פרויקט
       </p>
 
@@ -53,20 +53,25 @@ function ResultsScreen({
               type="button"
               onClick={() => onSelectQuestion(q)}
               className={
-                'w-full text-start p-4 rounded-xl border transition-colors duration-100 ' +
+                'w-full text-start p-4 rounded-xl border transition-all duration-150 ' +
                 (selected
-                  ? 'border-2 border-gray-900 bg-gray-50'
-                  : 'border border-gray-200 bg-white hover:border-gray-400')
+                  ? 'border-violet-500 bg-slate-800 shadow-lg shadow-violet-500/20'
+                  : 'border-slate-700 bg-slate-800 hover:border-slate-500')
               }
             >
               <div className="flex items-start justify-between gap-3">
-                <p className="text-sm font-medium text-gray-900 leading-relaxed">{q.question}</p>
-                <span className="shrink-0 text-xs font-semibold text-gray-500 bg-gray-100 rounded-full px-2 py-0.5">
+                <p className="text-sm font-medium text-white leading-relaxed">{q.question}</p>
+                <span className={
+                  'shrink-0 text-xs font-semibold rounded-full px-2 py-0.5 ' +
+                  (selected
+                    ? 'bg-violet-500/20 text-violet-300'
+                    : 'bg-slate-700 text-slate-400')
+                }>
                   {q.stress_test.overall_score.toFixed(1)}
                 </span>
               </div>
               {selected && q.why_it_works && (
-                <p className="mt-2 text-xs text-gray-500 leading-relaxed">{q.why_it_works}</p>
+                <p className="mt-2 text-xs text-slate-400 leading-relaxed">{q.why_it_works}</p>
               )}
             </button>
           )
@@ -80,10 +85,10 @@ function ResultsScreen({
             onClick={onGenerateBrief}
             disabled={briefLoading}
             className={
-              'w-full inline-flex items-center justify-center gap-2 py-3 rounded-xl text-base font-medium transition-colors duration-150 ' +
+              'w-full inline-flex items-center justify-center gap-2 py-3 rounded-xl text-base font-medium transition-all duration-150 ' +
               (briefLoading
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-gray-900 text-white hover:bg-gray-700')
+                ? 'bg-slate-700 text-slate-400 cursor-not-allowed'
+                : 'bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-lg shadow-violet-500/25')
             }
           >
             {briefLoading ? (
@@ -100,8 +105,8 @@ function ResultsScreen({
           </button>
 
           {briefError && (
-            <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3">
-              <p className="text-sm text-red-700">{briefError}</p>
+            <div className="rounded-xl border border-rose-700/50 bg-rose-900/30 px-4 py-3">
+              <p className="text-sm text-rose-300">{briefError}</p>
             </div>
           )}
         </div>
@@ -115,26 +120,26 @@ function ResultsScreen({
 function DiagnosisScreen({ diagnosis }: { diagnosis: DiagnosisResult }) {
   return (
     <div className="space-y-6">
-      <div className="flex items-baseline gap-2">
-        <span className="text-5xl font-bold text-gray-900">
+      <div className="flex items-baseline gap-3">
+        <span className="text-6xl font-black text-white">
           {diagnosis.overall_score.toFixed(1)}
         </span>
-        <span className="text-xl text-gray-400">/ 10</span>
-        <span className="text-sm text-gray-500 mr-1">ציון כולל</span>
+        <span className="text-xl text-slate-500">/ 10</span>
+        <span className="text-sm text-slate-400">ציון כולל</span>
       </div>
 
       {diagnosis.why_problematic && (
-        <div className="p-4 rounded-xl bg-red-50 border border-red-100">
-          <p className="text-sm text-red-800 leading-relaxed">{diagnosis.why_problematic}</p>
+        <div className="p-4 rounded-xl bg-rose-900/20 border border-rose-700/40">
+          <p className="text-sm text-rose-300 leading-relaxed">{diagnosis.why_problematic}</p>
         </div>
       )}
 
       <div>
-        <h3 className="text-sm font-semibold text-gray-700 mb-2">מה עובד</h3>
+        <h3 className="text-sm font-semibold text-slate-300 mb-2">מה עובד</h3>
         <ul className="space-y-1.5">
           {diagnosis.what_works.map((item, i) => (
-            <li key={i} className="text-sm text-gray-600 flex gap-2">
-              <span className="text-green-500 shrink-0">✓</span>
+            <li key={i} className="text-sm text-slate-300 flex gap-2">
+              <span className="text-emerald-400 shrink-0">✓</span>
               {item}
             </li>
           ))}
@@ -142,11 +147,11 @@ function DiagnosisScreen({ diagnosis }: { diagnosis: DiagnosisResult }) {
       </div>
 
       <div>
-        <h3 className="text-sm font-semibold text-gray-700 mb-2">מה לא עובד</h3>
+        <h3 className="text-sm font-semibold text-slate-300 mb-2">מה לא עובד</h3>
         <ul className="space-y-1.5">
           {diagnosis.what_doesnt_work.map((item, i) => (
-            <li key={i} className="text-sm text-gray-600 flex gap-2">
-              <span className="text-red-400 shrink-0">✗</span>
+            <li key={i} className="text-sm text-slate-300 flex gap-2">
+              <span className="text-rose-400 shrink-0">✗</span>
               {item}
             </li>
           ))}
@@ -154,18 +159,20 @@ function DiagnosisScreen({ diagnosis }: { diagnosis: DiagnosisResult }) {
       </div>
 
       <div>
-        <h3 className="text-sm font-semibold text-gray-700 mb-2">כיוון לשיפור</h3>
-        <p className="text-sm text-gray-600 leading-relaxed">{diagnosis.direction}</p>
+        <h3 className="text-sm font-semibold text-slate-300 mb-2">כיוון לשיפור</h3>
+        <div className="border-r-2 border-violet-500 pr-3">
+          <p className="text-sm text-slate-300 leading-relaxed">{diagnosis.direction}</p>
+        </div>
       </div>
 
       {diagnosis.alternative_formulations.length > 0 && (
         <div>
-          <h3 className="text-sm font-semibold text-gray-700 mb-3">ניסוחים חלופיים</h3>
+          <h3 className="text-sm font-semibold text-slate-300 mb-3">ניסוחים חלופיים</h3>
           <div className="space-y-3">
             {diagnosis.alternative_formulations.map((alt, i) => (
-              <div key={i} className="p-4 rounded-xl border border-gray-200 bg-gray-50 space-y-1">
-                <p className="text-sm font-medium text-gray-900">{alt.question}</p>
-                <p className="text-xs text-gray-500">{alt.explanation}</p>
+              <div key={i} className="p-4 rounded-xl border border-slate-700 bg-slate-800 space-y-1">
+                <p className="text-sm font-medium text-white">{alt.question}</p>
+                <p className="text-xs text-slate-400">{alt.explanation}</p>
               </div>
             ))}
           </div>
@@ -181,26 +188,26 @@ function BriefScreen({ brief }: { brief: ProjectBrief }) {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="space-y-2">
-        <h3 className="text-xl font-bold text-gray-900">{brief.project_title}</h3>
-        <div className="p-4 rounded-xl bg-gray-50 border border-gray-200">
-          <p className="text-sm font-medium text-gray-800 leading-relaxed">
+      <div className="space-y-3">
+        <h3 className="text-2xl font-bold text-white">{brief.project_title}</h3>
+        <div className="p-4 rounded-xl bg-violet-500/10 border border-violet-500/30">
+          <p className="text-sm font-medium text-violet-200 leading-relaxed">
             {brief.driving_question}
           </p>
         </div>
         {brief.teacher_summary && (
-          <p className="text-sm text-gray-600 leading-relaxed">{brief.teacher_summary}</p>
+          <p className="text-sm text-slate-400 leading-relaxed">{brief.teacher_summary}</p>
         )}
       </div>
 
       {/* Learning goals */}
       {brief.learning_goals.length > 0 && (
-        <section>
-          <h4 className="text-sm font-semibold text-gray-700 mb-2">מטרות למידה</h4>
-          <ul className="space-y-1.5">
+        <section className="pt-6 border-t border-slate-800">
+          <h4 className="text-sm font-semibold text-slate-300 mb-3">מטרות למידה</h4>
+          <ul className="space-y-2">
             {brief.learning_goals.map((g, i) => (
-              <li key={i} className="text-sm text-gray-600 flex gap-2">
-                <span className="text-gray-400 shrink-0">{i + 1}.</span>
+              <li key={i} className="text-sm text-slate-300 flex gap-2">
+                <span className="text-violet-400 shrink-0 font-semibold">{i + 1}.</span>
                 {g}
               </li>
             ))}
@@ -210,12 +217,12 @@ function BriefScreen({ brief }: { brief: ProjectBrief }) {
 
       {/* Inquiry stages */}
       {brief.inquiry_stages.length > 0 && (
-        <section>
-          <h4 className="text-sm font-semibold text-gray-700 mb-2">שלבי החקירה</h4>
+        <section className="pt-6 border-t border-slate-800">
+          <h4 className="text-sm font-semibold text-slate-300 mb-3">שלבי החקירה</h4>
           <div className="space-y-2">
             {brief.inquiry_stages.map((stage, i) => (
-              <div key={i} className="p-3 rounded-lg border border-gray-100 bg-gray-50">
-                <p className="text-sm text-gray-700 leading-relaxed">{stage}</p>
+              <div key={i} className="p-3 rounded-lg bg-slate-800 border-r-2 border-violet-500">
+                <p className="text-sm text-slate-300 leading-relaxed">{stage}</p>
               </div>
             ))}
           </div>
@@ -224,12 +231,12 @@ function BriefScreen({ brief }: { brief: ProjectBrief }) {
 
       {/* Possible products */}
       {brief.possible_products.length > 0 && (
-        <section>
-          <h4 className="text-sm font-semibold text-gray-700 mb-2">תוצרים אפשריים</h4>
+        <section className="pt-6 border-t border-slate-800">
+          <h4 className="text-sm font-semibold text-slate-300 mb-3">תוצרים אפשריים</h4>
           <ul className="space-y-1.5">
             {brief.possible_products.map((p, i) => (
-              <li key={i} className="text-sm text-gray-600 flex gap-2">
-                <span className="text-gray-400 shrink-0">•</span>
+              <li key={i} className="text-sm text-slate-300 flex gap-2">
+                <span className="text-violet-400 shrink-0">•</span>
                 {p}
               </li>
             ))}
@@ -239,14 +246,14 @@ function BriefScreen({ brief }: { brief: ProjectBrief }) {
 
       {/* Rubric */}
       {brief.rubric.length > 0 && (
-        <section>
-          <h4 className="text-sm font-semibold text-gray-700 mb-3">רובריקה</h4>
-          <div className="overflow-x-auto rounded-xl border border-gray-200">
+        <section className="pt-6 border-t border-slate-800">
+          <h4 className="text-sm font-semibold text-slate-300 mb-3">רובריקה</h4>
+          <div className="overflow-x-auto rounded-xl border border-slate-700">
             <table className="w-full text-sm">
-              <thead className="bg-gray-50 border-b border-gray-200">
+              <thead className="bg-slate-800/50 border-b border-slate-700">
                 <tr>
                   {['קריטריון', 'מתחיל', 'מתפתח', 'מיומן'].map((h) => (
-                    <th key={h} className="px-3 py-2 text-right font-medium text-gray-700">
+                    <th key={h} className="px-3 py-2 text-right font-medium text-slate-300">
                       {h}
                     </th>
                   ))}
@@ -254,11 +261,11 @@ function BriefScreen({ brief }: { brief: ProjectBrief }) {
               </thead>
               <tbody>
                 {brief.rubric.map((row, i) => (
-                  <tr key={i} className="border-b border-gray-100 last:border-0">
-                    <td className="px-3 py-2 font-medium text-gray-900 align-top">{row.criterion}</td>
-                    <td className="px-3 py-2 text-gray-600 align-top">{row.beginning}</td>
-                    <td className="px-3 py-2 text-gray-600 align-top">{row.developing}</td>
-                    <td className="px-3 py-2 text-gray-600 align-top">{row.proficient}</td>
+                  <tr key={i} className="border-b border-slate-800 last:border-0">
+                    <td className="px-3 py-2 font-medium text-white align-top">{row.criterion}</td>
+                    <td className="px-3 py-2 text-slate-400 align-top">{row.beginning}</td>
+                    <td className="px-3 py-2 text-slate-400 align-top">{row.developing}</td>
+                    <td className="px-3 py-2 text-slate-400 align-top">{row.proficient}</td>
                   </tr>
                 ))}
               </tbody>
@@ -269,19 +276,19 @@ function BriefScreen({ brief }: { brief: ProjectBrief }) {
 
       {/* Differentiation */}
       {(brief.differentiation.support || brief.differentiation.extension) && (
-        <section>
-          <h4 className="text-sm font-semibold text-gray-700 mb-3">דיפרנציאציה</h4>
+        <section className="pt-6 border-t border-slate-800">
+          <h4 className="text-sm font-semibold text-slate-300 mb-3">דיפרנציאציה</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {brief.differentiation.support && (
-              <div className="p-3 rounded-lg border border-blue-100 bg-blue-50">
-                <p className="text-xs font-semibold text-blue-700 mb-1">תמיכה</p>
-                <p className="text-sm text-blue-800 leading-relaxed">{brief.differentiation.support}</p>
+              <div className="p-3 rounded-lg border border-blue-700/40 bg-blue-900/20">
+                <p className="text-xs font-semibold text-blue-400 mb-1">תמיכה</p>
+                <p className="text-sm text-blue-200 leading-relaxed">{brief.differentiation.support}</p>
               </div>
             )}
             {brief.differentiation.extension && (
-              <div className="p-3 rounded-lg border border-green-100 bg-green-50">
-                <p className="text-xs font-semibold text-green-700 mb-1">הרחבה</p>
-                <p className="text-sm text-green-800 leading-relaxed">{brief.differentiation.extension}</p>
+              <div className="p-3 rounded-lg border border-emerald-700/40 bg-emerald-900/20">
+                <p className="text-xs font-semibold text-emerald-400 mb-1">הרחבה</p>
+                <p className="text-sm text-emerald-200 leading-relaxed">{brief.differentiation.extension}</p>
               </div>
             )}
           </div>
@@ -290,10 +297,10 @@ function BriefScreen({ brief }: { brief: ProjectBrief }) {
 
       {/* Opening experience */}
       {brief.opening_experience && (
-        <section>
-          <h4 className="text-sm font-semibold text-gray-700 mb-2">חוויית פתיחה</h4>
-          <div className="p-4 rounded-xl border border-amber-100 bg-amber-50">
-            <p className="text-sm text-amber-800 leading-relaxed">{brief.opening_experience}</p>
+        <section className="pt-6 border-t border-slate-800">
+          <h4 className="text-sm font-semibold text-slate-300 mb-3">חוויית פתיחה</h4>
+          <div className="p-4 rounded-xl border border-amber-700/30 bg-amber-900/20">
+            <p className="text-sm text-amber-200 leading-relaxed">{brief.opening_experience}</p>
           </div>
         </section>
       )}
@@ -311,23 +318,23 @@ function ConfirmDialog({
   onCancel: () => void
 }) {
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-6">
-      <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl space-y-5">
-        <p className="text-gray-900 font-medium leading-relaxed">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 px-6">
+      <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 max-w-sm w-full shadow-2xl space-y-5">
+        <p className="text-white font-medium leading-relaxed">
           האם להתחיל מחדש? הנתונים הנוכחיים יימחקו.
         </p>
         <div className="flex gap-3">
           <button
             type="button"
             onClick={onConfirm}
-            className="flex-1 py-2.5 rounded-xl bg-gray-900 text-white text-sm font-medium hover:bg-gray-700 transition-colors"
+            className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-sm font-medium hover:from-violet-500 hover:to-indigo-500 transition-all"
           >
             כן, התחל מחדש
           </button>
           <button
             type="button"
             onClick={onCancel}
-            className="flex-1 py-2.5 rounded-xl border border-gray-200 text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors"
+            className="flex-1 py-2.5 rounded-xl border border-slate-700 text-slate-300 text-sm font-medium hover:border-slate-500 hover:text-white transition-colors"
           >
             ביטול
           </button>
@@ -399,22 +406,22 @@ export default function HomePage() {
 
   if (mode === 'home') {
     return (
-      <main className="min-h-screen bg-white flex flex-col items-center justify-center px-6">
+      <main className="min-h-screen bg-slate-950 flex flex-col items-center justify-center px-6">
         <div className="w-full max-w-2xl text-center space-y-10">
           <div className="flex justify-center">
-            <div className="p-4 rounded-2xl bg-gray-50 border border-gray-100">
-              <FlaskConical className="w-10 h-10 text-gray-700" strokeWidth={1.5} />
+            <div className="p-4 rounded-2xl bg-violet-500/10 border border-violet-500/20 shadow-lg shadow-violet-500/20">
+              <FlaskConical className="w-10 h-10 text-violet-400" strokeWidth={1.5} />
             </div>
           </div>
 
           <div className="space-y-4">
-            <h1 className="text-4xl font-bold tracking-tight text-gray-900">
+            <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight bg-gradient-to-r from-violet-400 via-indigo-400 to-cyan-400 bg-clip-text text-transparent">
               PBL Question Lab
             </h1>
-            <p className="text-xl font-medium text-gray-700 leading-relaxed">
+            <p className="text-xl font-medium text-slate-300 leading-relaxed">
               הופכים נושא לימודי לשאלת PBL שאי אפשר לפתור עם תשובה מגוגל.
             </p>
-            <p className="text-base text-gray-500 leading-relaxed max-w-xl mx-auto">
+            <p className="text-base text-slate-500 leading-relaxed max-w-xl mx-auto">
               PBL Question Lab עוזר למורים לבנות, לבדוק ולשפר שאלות גדולות שמחזיקות חקר,
               דילמה, תוכן ותוצר משמעותי.
             </p>
@@ -424,7 +431,7 @@ export default function HomePage() {
             <button
               type="button"
               onClick={() => setMode('generate')}
-              className="inline-flex items-center gap-2 justify-center px-6 py-3 rounded-xl bg-gray-900 text-white text-base font-medium hover:bg-gray-700 transition-colors duration-150"
+              className="inline-flex items-center gap-2 justify-center px-6 py-3 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-base font-medium shadow-lg shadow-violet-500/25 transition-all duration-150"
             >
               <FlaskConical className="w-5 h-5" strokeWidth={1.5} />
               צור שאלות PBL
@@ -432,7 +439,7 @@ export default function HomePage() {
             <button
               type="button"
               onClick={() => setMode('diagnose')}
-              className="inline-flex items-center gap-2 justify-center px-6 py-3 rounded-xl border border-gray-300 bg-white text-gray-800 text-base font-medium hover:bg-gray-50 transition-colors duration-150"
+              className="inline-flex items-center gap-2 justify-center px-6 py-3 rounded-xl bg-slate-800 border border-slate-700 text-slate-200 text-base font-medium hover:border-slate-500 hover:text-white transition-colors duration-150"
             >
               <Search className="w-5 h-5" strokeWidth={1.5} />
               אבחן שאלה קיימת
@@ -449,19 +456,20 @@ export default function HomePage() {
   const isWide = mode === 'results' || mode === 'diagnosis' || mode === 'brief'
 
   return (
-    <main className="min-h-screen bg-gray-50">
+    <main className="min-h-screen bg-slate-950">
       {mockMode && (
-        <div className="bg-amber-50 border-b border-amber-200 px-4 py-2.5 text-center">
-          <span className="text-sm text-amber-800">פועל במצב הדגמה — אין מפתח API</span>
+        <div className="bg-amber-900/30 border-b border-amber-700/50 px-4 py-2.5 text-center">
+          <span className="text-sm text-amber-300">פועל במצב הדגמה — אין מפתח API</span>
         </div>
       )}
 
-      <div className="bg-white border-b border-gray-100">
+      {/* Navigation bar */}
+      <div className="bg-slate-900 border-b border-slate-800">
         <div className="max-w-3xl mx-auto px-6 py-3 flex items-center justify-between">
           <button
             type="button"
             onClick={goBack}
-            className="inline-flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+            className="inline-flex items-center gap-1.5 text-sm text-slate-400 hover:text-white transition-colors"
           >
             <ChevronRight className="w-4 h-4" strokeWidth={1.5} />
             חזור
@@ -471,7 +479,7 @@ export default function HomePage() {
             <button
               type="button"
               onClick={() => setShowConfirm(true)}
-              className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors"
+              className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-white transition-colors"
             >
               <RotateCcw className="w-3.5 h-3.5" strokeWidth={1.5} />
               התחל מחדש
@@ -480,11 +488,12 @@ export default function HomePage() {
         </div>
       </div>
 
+      {/* Content */}
       <div className={`mx-auto px-6 py-8 ${isWide ? 'max-w-3xl' : 'max-w-2xl'}`}>
 
         {/* Generate form */}
         {mode === 'generate' && (
-          <div className="bg-white rounded-2xl border border-gray-100 p-6 md:p-8">
+          <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6 md:p-8">
             <GenerateForm
               onSuccess={(qs, mock, input) => {
                 setQuestions(qs)
@@ -498,7 +507,7 @@ export default function HomePage() {
 
         {/* Diagnose form */}
         {mode === 'diagnose' && (
-          <div className="bg-white rounded-2xl border border-gray-100 p-6 md:p-8">
+          <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6 md:p-8">
             <DiagnoseForm
               onSuccess={(diag, mock, input) => {
                 setDiagnosis(diag)
@@ -512,9 +521,9 @@ export default function HomePage() {
 
         {/* Results */}
         {mode === 'results' && questions.length > 0 && (
-          <div className="bg-white rounded-2xl border border-gray-100 p-6 md:p-8">
-            <div className="pb-4 border-b border-gray-100 mb-6">
-              <h2 className="text-lg font-semibold text-gray-900">שאלות מנחות שנוצרו</h2>
+          <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6 md:p-8">
+            <div className="pb-4 border-b border-slate-800 mb-6">
+              <h2 className="text-lg font-bold text-white">שאלות מנחות שנוצרו</h2>
             </div>
             <ResultsScreen
               questions={questions}
@@ -529,9 +538,9 @@ export default function HomePage() {
 
         {/* Diagnosis */}
         {mode === 'diagnosis' && diagnosis && (
-          <div className="bg-white rounded-2xl border border-gray-100 p-6 md:p-8">
-            <div className="pb-4 border-b border-gray-100 mb-6">
-              <h2 className="text-lg font-semibold text-gray-900">תוצאות האבחון</h2>
+          <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6 md:p-8">
+            <div className="pb-4 border-b border-slate-800 mb-6">
+              <h2 className="text-lg font-bold text-white">תוצאות האבחון</h2>
             </div>
             <DiagnosisScreen diagnosis={diagnosis} />
           </div>
@@ -539,9 +548,9 @@ export default function HomePage() {
 
         {/* Brief */}
         {mode === 'brief' && projectBrief && (
-          <div className="bg-white rounded-2xl border border-gray-100 p-6 md:p-8">
-            <div className="pb-4 border-b border-gray-100 mb-6">
-              <h2 className="text-lg font-semibold text-gray-900">תיק פרויקט</h2>
+          <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6 md:p-8">
+            <div className="pb-4 border-b border-slate-800 mb-6">
+              <h2 className="text-lg font-bold text-white">תיק פרויקט</h2>
             </div>
             <BriefScreen brief={projectBrief} />
           </div>
