@@ -17,9 +17,11 @@ import {
   Printer,
   AlertTriangle,
   BarChart2,
+  Archive,
 } from 'lucide-react'
 import type {
   AppMode,
+  ArchiveItem,
   BigQuestion,
   DiagnosisResult,
   FormInput,
@@ -820,9 +822,21 @@ export default function HomePage() {
   const [regenerateLoading, setRegenerateLoading] = useState(false)
   const [regenerateError, setRegenerateError] = useState<string | null>(null)
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' } | null>(null)
+  const [archiveQuestions, setArchiveQuestions] = useState<ArchiveItem[]>([])
+  const [archiveLoading, setArchiveLoading] = useState(false)
 
   useEffect(() => {
     window.scrollTo({ top: 0 })
+  }, [mode])
+
+  useEffect(() => {
+    if (mode !== 'archive') return
+    setArchiveLoading(true)
+    fetch('/api/archive')
+      .then(r => r.json())
+      .then(d => setArchiveQuestions(d.questions ?? []))
+      .catch(() => setArchiveQuestions([]))
+      .finally(() => setArchiveLoading(false))
   }, [mode])
 
   useEffect(() => {
@@ -1089,8 +1103,95 @@ export default function HomePage() {
               <Search className="w-5 h-5" strokeWidth={1.5} />
               אבחן שאלה קיימת
             </button>
+            <button
+              type="button"
+              onClick={() => setMode('archive')}
+              className="inline-flex items-center gap-2 justify-center px-8 py-4 rounded-xl bg-slate-800 border border-slate-700 text-slate-200 text-base font-medium hover:border-cyan-500/50 hover:text-white transition-all duration-150"
+            >
+              <Archive className="w-5 h-5" strokeWidth={1.5} />
+              ארכיון שאלות
+            </button>
           </div>
 
+        </div>
+        <SiteFooter />
+      </main>
+    )
+  }
+
+  // ── Archive ─────────────────────────────────────────────────────────────────
+
+  if (mode === 'archive') {
+    return (
+      <main className="min-h-screen bg-slate-950 flex flex-col items-center px-6 py-12">
+        <div className="w-full max-w-4xl space-y-8">
+          <div className="flex items-center justify-between">
+            <button
+              type="button"
+              onClick={() => setMode('home')}
+              className="inline-flex items-center gap-1.5 text-sm text-slate-400 hover:text-white transition-colors"
+            >
+              <ChevronLeft className="w-4 h-4" strokeWidth={1.5} />
+              חזור לדף הבית
+            </button>
+          </div>
+
+          <div className="text-center space-y-2">
+            <div className="flex justify-center">
+              <div className="p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/20">
+                <Archive className="w-7 h-7 text-cyan-400" strokeWidth={1.5} />
+              </div>
+            </div>
+            <h1 className="text-3xl font-bold text-white">ארכיון שאלות</h1>
+            <p className="text-slate-400 text-sm">כל השאלות שנוצרו בכלי</p>
+          </div>
+
+          {archiveLoading && (
+            <div className="flex justify-center py-16">
+              <Loader2 className="w-8 h-8 text-violet-400 animate-spin" strokeWidth={1.5} />
+            </div>
+          )}
+
+          {!archiveLoading && archiveQuestions.length === 0 && (
+            <div className="text-center py-16 space-y-3">
+              <p className="text-slate-500 text-lg">הארכיון ריק עדיין</p>
+              <p className="text-slate-600 text-sm">שאלות ייכנסו לכאן אוטומטית לאחר שייווצרו</p>
+            </div>
+          )}
+
+          {!archiveLoading && archiveQuestions.length > 0 && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {archiveQuestions.map((item) => {
+                const scoreColor =
+                  item.overall_score >= 8 ? 'text-emerald-400 bg-emerald-900/40'
+                  : item.overall_score >= 5 ? 'text-amber-400 bg-amber-900/40'
+                  : 'text-rose-400 bg-rose-900/40'
+                const subjects = (() => {
+                  try { return (JSON.parse(item.subjects) as string[]).join(' · ') } catch { return item.subjects }
+                })()
+                return (
+                  <div
+                    key={item.id}
+                    className="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-3 hover:border-slate-700 transition-colors"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="space-y-0.5 min-w-0">
+                        <p className="text-sm font-semibold text-white truncate">{item.topic}</p>
+                        <p className="text-xs text-slate-500">{item.grade}{subjects ? ` · ${subjects}` : ''}</p>
+                      </div>
+                      <span className={`text-xs font-bold px-2 py-0.5 rounded-full shrink-0 ${scoreColor}`}>
+                        {item.overall_score.toFixed(1)}
+                      </span>
+                    </div>
+                    <p className="text-sm text-slate-300 leading-relaxed line-clamp-3">{item.question}</p>
+                    <p className="text-xs text-slate-600">
+                      {new Date(item.created_at).toLocaleDateString('he-IL')}
+                    </p>
+                  </div>
+                )
+              })}
+            </div>
+          )}
         </div>
         <SiteFooter />
       </main>
