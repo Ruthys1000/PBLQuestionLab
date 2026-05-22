@@ -105,7 +105,7 @@ function StressTestPanel({ stressTest }: { stressTest: StressTest }) {
             return (
               <div key={key}>
                 <div className="flex items-center gap-3 mb-0.5">
-                  <span className="text-xs text-slate-400 flex-1 truncate">{label}</span>
+                  <span className="text-sm text-slate-400 flex-1">{label}</span>
                   <div className="w-20 h-1.5 bg-slate-700 rounded-full overflow-hidden shrink-0">
                     <div
                       className={`h-full ${barColor} rounded-full`}
@@ -117,7 +117,7 @@ function StressTestPanel({ stressTest }: { stressTest: StressTest }) {
                   </span>
                 </div>
                 {explanation && (
-                  <p className="text-xs text-slate-500 leading-relaxed">{explanation}</p>
+                  <p className="text-sm text-slate-500 leading-relaxed">{explanation}</p>
                 )}
               </div>
             )
@@ -275,8 +275,8 @@ function ResultsScreen({
                 {/* Why it works */}
                 {q.why_it_works && (
                   <div>
-                    <p className="text-xs font-semibold text-slate-400 mb-1">למה זה עובד</p>
-                    <p className="text-xs text-slate-300 leading-relaxed">{q.why_it_works}</p>
+                    <p className="text-sm font-semibold text-slate-400 mb-1">למה זה עובד</p>
+                    <p className="text-sm text-slate-300 leading-relaxed">{q.why_it_works}</p>
                   </div>
                 )}
 
@@ -285,10 +285,10 @@ function ResultsScreen({
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {q.strengths.length > 0 && (
                       <div>
-                        <p className="text-xs font-semibold text-emerald-400 mb-1.5">חוזקות</p>
+                        <p className="text-sm font-semibold text-emerald-400 mb-1.5">חוזקות</p>
                         <ul className="space-y-1">
                           {q.strengths.map((s, i) => (
-                            <li key={i} className="text-xs text-slate-300 flex gap-1.5">
+                            <li key={i} className="text-sm text-slate-300 flex gap-1.5">
                               <span className="text-emerald-500 shrink-0">✓</span>
                               {s}
                             </li>
@@ -298,10 +298,10 @@ function ResultsScreen({
                     )}
                     {q.weaknesses.length > 0 && (
                       <div>
-                        <p className="text-xs font-semibold text-rose-400 mb-1.5">נקודות לשיפור</p>
+                        <p className="text-sm font-semibold text-rose-400 mb-1.5">נקודות לשיפור</p>
                         <ul className="space-y-1">
                           {q.weaknesses.map((w, i) => (
-                            <li key={i} className="text-xs text-slate-300 flex gap-1.5">
+                            <li key={i} className="text-sm text-slate-300 flex gap-1.5">
                               <span className="text-rose-500 shrink-0">✗</span>
                               {w}
                             </li>
@@ -315,10 +315,10 @@ function ResultsScreen({
                 {/* Sub-questions */}
                 {q.sub_questions.length > 0 && (
                   <div>
-                    <p className="text-xs font-semibold text-slate-400 mb-1.5">שאלות משנה</p>
+                    <p className="text-sm font-semibold text-slate-400 mb-1.5">שאלות משנה</p>
                     <ul className="space-y-1">
                       {q.sub_questions.map((sq, i) => (
-                        <li key={i} className="text-xs text-slate-300 flex gap-1.5">
+                        <li key={i} className="text-sm text-slate-300 flex gap-1.5">
                           <span className="text-violet-400 shrink-0 font-medium">{i + 1}.</span>
                           {sq}
                         </li>
@@ -330,10 +330,10 @@ function ResultsScreen({
                 {/* Product ideas */}
                 {q.product_ideas.length > 0 && (
                   <div>
-                    <p className="text-xs font-semibold text-slate-400 mb-1.5">רעיונות לתוצרים</p>
+                    <p className="text-sm font-semibold text-slate-400 mb-1.5">רעיונות לתוצרים</p>
                     <ul className="space-y-1">
                       {q.product_ideas.map((p, i) => (
-                        <li key={i} className="text-xs text-slate-300 flex gap-1.5">
+                        <li key={i} className="text-sm text-slate-300 flex gap-1.5">
                           <span className="text-violet-400 shrink-0">•</span>
                           {p}
                         </li>
@@ -345,7 +345,7 @@ function ResultsScreen({
                 {/* Alternative formulations */}
                 {q.alternative_formulations.length > 0 && (
                   <div>
-                    <p className="text-xs font-semibold text-slate-400 mb-1.5">ניסוחים חלופיים</p>
+                    <p className="text-sm font-semibold text-slate-400 mb-1.5">ניסוחים חלופיים</p>
                     <div className="space-y-2">
                       {q.alternative_formulations.map((alt, i) => {
                         const isAltSelected =
@@ -360,17 +360,17 @@ function ResultsScreen({
                             }`}
                           >
                             <div className="flex items-start gap-2">
-                              <p className="text-xs font-medium text-white flex-1 leading-relaxed">{alt.question}</p>
+                              <p className="text-sm font-medium text-white flex-1 leading-relaxed">{alt.question}</p>
                               <CopyButton text={alt.question} label="העתק ניסוח" />
                             </div>
                             {alt.explanation && (
-                              <p className="text-xs text-slate-500 mt-1">{alt.explanation}</p>
+                              <p className="text-sm text-slate-500 mt-1">{alt.explanation}</p>
                             )}
                             <button
                               type="button"
                               onClick={() => onSelectQuestion({ ...q, question: alt.question })}
                               disabled={isAltSelected}
-                              className={`mt-2 text-[11px] font-medium px-2.5 py-1 rounded-lg transition-colors ${
+                              className={`mt-2 text-xs font-medium px-2.5 py-1 rounded-lg transition-colors ${
                                 isAltSelected
                                   ? 'bg-violet-600/30 text-violet-300 cursor-default'
                                   : 'bg-slate-700 text-slate-300 hover:bg-violet-600/20 hover:text-violet-300'
@@ -420,8 +420,8 @@ function ResultsScreen({
       {selectedQuestion && (
         <div className="space-y-2 pt-1">
           <div className="rounded-xl border border-violet-500/30 bg-violet-500/5 px-4 py-3">
-            <p className="text-[11px] text-violet-400 font-semibold mb-1">השאלה שתיבנה עליה תיק הפרויקט:</p>
-            <p className="text-xs text-white leading-relaxed">{selectedQuestion.question}</p>
+            <p className="text-xs text-violet-400 font-semibold mb-1">השאלה שתיבנה עליה תיק הפרויקט:</p>
+            <p className="text-sm text-white leading-relaxed">{selectedQuestion.question}</p>
           </div>
           <button
             type="button"
@@ -548,7 +548,7 @@ function DiagnosisScreen({ diagnosis }: { diagnosis: DiagnosisResult }) {
                   <p className="text-sm font-medium text-white flex-1">{alt.question}</p>
                   <CopyButton text={alt.question} label="העתק ניסוח" />
                 </div>
-                <p className="text-xs text-slate-400">{alt.explanation}</p>
+                <p className="text-sm text-slate-400">{alt.explanation}</p>
               </div>
             ))}
           </div>
@@ -962,7 +962,7 @@ export default function HomePage() {
                       {step.num}
                     </div>
                     <p className="text-sm font-semibold text-white leading-snug">{step.title}</p>
-                    <p className="text-xs text-slate-500 leading-snug">{step.desc}</p>
+                    <p className="text-sm text-slate-400 leading-snug">{step.desc}</p>
                   </div>
                 </div>
               ))}
@@ -987,7 +987,7 @@ export default function HomePage() {
                   'שאלות חקירה מוכנות לתת לתלמידים',
                   '2 ניסוחים חלופיים לבחור מהם',
                 ].map((item) => (
-                  <li key={item} className="flex items-start gap-2 text-xs text-slate-300">
+                  <li key={item} className="flex items-start gap-2 text-sm text-slate-300">
                     <span className="text-violet-400 shrink-0 mt-0.5">✓</span>
                     {item}
                   </li>
@@ -1028,7 +1028,7 @@ export default function HomePage() {
                   'הנחיה ברורה לאן לכתוב מחדש',
                   '2 גרסאות משופרות עם הסבר מה השתנה',
                 ].map((item) => (
-                  <li key={item} className="flex items-start gap-2 text-xs text-slate-300">
+                  <li key={item} className="flex items-start gap-2 text-sm text-slate-300">
                     <span className="text-indigo-400 shrink-0 mt-0.5">✓</span>
                     {item}
                   </li>
@@ -1036,12 +1036,12 @@ export default function HomePage() {
               </ul>
               <div className="pt-3 border-t border-slate-800 space-y-2">
                 <div className="bg-rose-900/20 border border-rose-700/30 rounded-lg p-3">
-                  <p className="text-xs text-rose-400 font-semibold mb-1">מה לא עובד</p>
-                  <p className="text-xs text-slate-400 font-medium leading-relaxed">שאלה סגורה שניתן לפתור ב-ChatGPT ללא חשיבה עצמאית</p>
+                  <p className="text-sm text-rose-400 font-semibold mb-1">מה לא עובד</p>
+                  <p className="text-sm text-slate-400 font-medium leading-relaxed">שאלה סגורה שניתן לפתור ב-ChatGPT ללא חשיבה עצמאית</p>
                 </div>
                 <div className="bg-emerald-900/20 border border-emerald-700/30 rounded-lg p-3">
-                  <p className="text-xs text-emerald-400 font-semibold mb-1">כיוון לשיפור</p>
-                  <p className="text-xs text-slate-400 font-medium leading-relaxed">הוסף דילמה ועמדה שדורשת הכרעה ערכית</p>
+                  <p className="text-sm text-emerald-400 font-semibold mb-1">כיוון לשיפור</p>
+                  <p className="text-sm text-slate-400 font-medium leading-relaxed">הוסף דילמה ועמדה שדורשת הכרעה ערכית</p>
                 </div>
               </div>
             </div>
@@ -1061,7 +1061,7 @@ export default function HomePage() {
                   'רובריקה מוכנה לשימוש ביום הראשון',
                   'מה לתת למי שנתקע ולמי שרץ קדימה',
                 ].map((item) => (
-                  <li key={item} className="flex items-start gap-2 text-xs text-slate-300">
+                  <li key={item} className="flex items-start gap-2 text-sm text-slate-300">
                     <span className="text-cyan-400 shrink-0 mt-0.5">✓</span>
                     {item}
                   </li>
@@ -1072,7 +1072,7 @@ export default function HomePage() {
                 {['שם ושאלה מנחה', 'תכנים ומיומנויות', 'פעילות פתיחה', 'תוצרים לקהל אמיתי'].map((item) => (
                   <div key={item} className="flex items-center gap-2">
                     <div className="w-1 h-1 rounded-full bg-cyan-500 shrink-0" />
-                    <span className="text-xs text-slate-400 font-medium">{item}</span>
+                    <span className="text-sm text-slate-400 font-medium">{item}</span>
                   </div>
                 ))}
               </div>

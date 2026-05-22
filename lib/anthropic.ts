@@ -45,6 +45,9 @@ async function callClaude(
         { signal: controller.signal },
       )
 
+      if (response.stop_reason === 'max_tokens') {
+        throw new Error('שגיאה: התגובה קוצרה — נסה שוב, הפרויקט גדול מדי לעיבוד בפעם אחת.')
+      }
       const block = response.content[0]
       if (!block || block.type !== 'text') {
         throw new Error('שגיאה: Claude לא החזיר תוכן טקסטואלי')
@@ -139,7 +142,7 @@ export async function generateProjectBrief(params: {
   }
 
   try {
-    const raw = await callClaude(BRIEF_SYSTEM_PROMPT, JSON.stringify(params), 4000)
+    const raw = await callClaude(BRIEF_SYSTEM_PROMPT, JSON.stringify(params), 5000)
     const parsed = parseJSON<{ brief: ProjectBrief }>(raw, 'generateProjectBrief')
     return parsed.brief
   } catch (err) {
