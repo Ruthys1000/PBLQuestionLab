@@ -27,28 +27,45 @@ async function callClaude(
   maxTokens = 4000,
 ): Promise<string> {
   const client = getClient()
-  const controller = new AbortController()
-  const timeoutId = setTimeout(() => controller.abort(), 110_000)
+  const maxRetries = 3
+  const baseDelay = 5000
 
-  try {
-    const response = await client.messages.create(
-      {
-        model: 'claude-sonnet-4-6',
-        max_tokens: maxTokens,
-        system: systemPrompt,
-        messages: [{ role: 'user', content: userMessage }],
-      },
-      { signal: controller.signal },
-    )
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 110_000)
 
-    const block = response.content[0]
-    if (!block || block.type !== 'text') {
-      throw new Error('שגיאה: Claude לא החזיר תוכן טקסטואלי')
+    try {
+      const response = await client.messages.create(
+        {
+          model: 'claude-sonnet-4-6',
+          max_tokens: maxTokens,
+          system: systemPrompt,
+          messages: [{ role: 'user', content: userMessage }],
+        },
+        { signal: controller.signal },
+      )
+
+      const block = response.content[0]
+      if (!block || block.type !== 'text') {
+        throw new Error('שגיאה: Claude לא החזיר תוכן טקסטואלי')
+      }
+      return block.text
+    } catch (err) {
+      clearTimeout(timeoutId)
+      const isOverloaded =
+        err instanceof Anthropic.APIError && err.status === 529
+      if (isOverloaded && attempt < maxRetries) {
+        const delay = baseDelay * Math.pow(2, attempt)
+        console.warn(`[callClaude] API overloaded (529), retrying in ${delay}ms (attempt ${attempt + 1}/${maxRetries})`)
+        await new Promise((resolve) => setTimeout(resolve, delay))
+        continue
+      }
+      throw err
+    } finally {
+      clearTimeout(timeoutId)
     }
-    return block.text
-  } finally {
-    clearTimeout(timeoutId)
   }
+  throw new Error('שגיאה: לא ניתן להתחבר לשרת לאחר מספר ניסיונות. נסה שוב מאוחר יותר.')
 }
 
 function extractJSON(raw: string): string {
