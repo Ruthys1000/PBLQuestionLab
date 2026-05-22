@@ -20,6 +20,7 @@ export async function GET() {
         subjects: true,
         question: true,
         overall_score: true,
+        full_data: true,
         created_at: true,
       },
     })

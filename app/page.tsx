@@ -89,7 +89,7 @@ function StressTestPanel({ stressTest }: { stressTest: StressTest }) {
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-slate-100 hover:text-white hover:bg-violet-900/20 transition-colors"
+        className="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-slate-100 bg-violet-900/10 hover:bg-violet-900/30 transition-colors cursor-pointer"
       >
         <span className="flex items-center gap-2">
           <BarChart2 className="w-4 h-4 text-violet-400 shrink-0" strokeWidth={1.5} />
@@ -98,10 +98,13 @@ function StressTestPanel({ stressTest }: { stressTest: StressTest }) {
             {stressTest.overall_score.toFixed(1)} / 10
           </span>
         </span>
-        {open
-          ? <ChevronUp className="w-4 h-4 text-violet-400" strokeWidth={1.5} />
-          : <ChevronDown className="w-4 h-4 text-violet-400" strokeWidth={1.5} />
-        }
+        <span className="flex items-center gap-1.5 text-violet-400">
+          {!open && <span className="text-xs font-normal text-violet-400/70">לחץ לפרטים</span>}
+          {open
+            ? <ChevronUp className="w-4 h-4" strokeWidth={1.5} />
+            : <ChevronDown className="w-4 h-4" strokeWidth={1.5} />
+          }
+        </span>
       </button>
 
       {open && (
@@ -1171,6 +1174,10 @@ export default function HomePage() {
                 const subjects = (() => {
                   try { return (JSON.parse(item.subjects) as string[]).join(' · ') } catch { return item.subjects }
                 })()
+                const fullData = (() => {
+                  if (!item.full_data) return null
+                  try { return JSON.parse(item.full_data) as BigQuestion } catch { return null }
+                })()
                 return (
                   <div
                     key={item.id}
@@ -1186,6 +1193,9 @@ export default function HomePage() {
                       </span>
                     </div>
                     <p className="text-sm text-slate-300 leading-relaxed line-clamp-3">{item.question}</p>
+                    {fullData?.stress_test && (
+                      <StressTestPanel stressTest={fullData.stress_test} />
+                    )}
                     <p className="text-xs text-slate-600">
                       {new Date(item.created_at).toLocaleDateString('he-IL')}
                     </p>

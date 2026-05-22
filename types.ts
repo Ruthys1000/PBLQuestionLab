@@ -94,6 +94,7 @@ export interface ArchiveItem {
   subjects: string
   question: string
   overall_score: number
+  full_data?: string
   created_at: string
 }
 
