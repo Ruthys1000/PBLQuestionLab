@@ -170,7 +170,7 @@ function StepIndicator({ mode, isGenerateFlow }: { mode: AppMode; isGenerateFlow
   return (
     <div className="no-print border-b border-slate-800/60 bg-slate-950">
       <div className="max-w-3xl mx-auto px-6 py-3">
-        <div className="flex items-center justify-center" dir="ltr">
+        <div className="flex items-center justify-center">
           {steps.map((step, i) => {
             const num = i + 1
             const done = num < currentStep
@@ -251,7 +251,7 @@ function ResultsScreen({
               }
             >
               <div className="flex items-start justify-between gap-3">
-                <p className="text-sm font-medium text-white leading-relaxed">{q.question}</p>
+                <p className="text-sm font-medium text-slate-100 leading-relaxed">{q.question}</p>
                 <div className="flex items-center gap-1.5 shrink-0">
                   <span className={
                     'text-xs font-semibold rounded-full px-2 py-0.5 ' +
@@ -362,7 +362,7 @@ function ResultsScreen({
                             }`}
                           >
                             <div className="flex items-start gap-2">
-                              <p className="text-sm font-medium text-white flex-1 leading-relaxed">{alt.question}</p>
+                              <p className="text-sm font-medium text-slate-100 flex-1 leading-relaxed">{alt.question}</p>
                               <div className={`mt-0.5 w-4 h-4 rounded shrink-0 border flex items-center justify-center transition-colors ${
                                 isAltSelected
                                   ? 'bg-violet-600 border-violet-600'
@@ -417,7 +417,7 @@ function ResultsScreen({
         <div className="space-y-2 pt-1">
           <div className="rounded-xl border border-violet-500/30 bg-violet-500/5 px-4 py-3">
             <p className="text-xs text-violet-400 font-semibold mb-1">השאלה שתיבנה עליה תיק הפרויקט:</p>
-            <p className="text-sm text-white leading-relaxed">{selectedQuestion.question}</p>
+            <p className="text-sm text-slate-100 leading-relaxed">{selectedQuestion.question}</p>
           </div>
           <button
             type="button"
@@ -458,24 +458,14 @@ function ResultsScreen({
           )}
 
           {briefError && (
-            <div className="rounded-xl border border-rose-700/50 bg-rose-900/30 px-4 py-3 space-y-2">
-              <div className="flex items-start justify-between gap-3">
-                <p className="text-sm text-rose-300">{briefError}</p>
-                <button
-                  onClick={onGenerateBrief}
-                  className="shrink-0 text-xs text-rose-300 border border-rose-700/50 rounded-lg px-3 py-1 hover:bg-rose-800/30 transition-colors"
-                >
-                  נסה שוב
-                </button>
-              </div>
-              <a
-                href="https://status.anthropic.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs text-rose-400/70 underline block"
+            <div className="rounded-xl border border-rose-700/50 bg-rose-900/30 px-4 py-3 flex items-start justify-between gap-3">
+              <p className="text-sm text-rose-300">{briefError}</p>
+              <button
+                onClick={onGenerateBrief}
+                className="shrink-0 text-xs text-rose-300 border border-rose-700/50 rounded-lg px-3 py-1 hover:bg-rose-800/30 transition-colors"
               >
-                בדוק את סטטוס שירות Anthropic ←
-              </a>
+                נסה שוב
+              </button>
             </div>
           )}
         </div>
@@ -943,7 +933,7 @@ export default function HomePage() {
           {/* How it works */}
           <div className="text-center space-y-6">
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest">איך זה עובד</p>
-            <div className="flex items-start justify-center gap-1">
+            <div className="flex items-start justify-center gap-1" dir="rtl">
               {[
                 { num: 1, title: 'מלא פרטים', desc: 'נושא, כיתה, מקצועות, רמת אתגר' },
                 { num: 2, title: 'קבל שאלה מנחה', desc: 'עם ניקוד ב-10 קריטריונים PBL' },
