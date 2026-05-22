@@ -351,33 +351,30 @@ function ResultsScreen({
                         const isAltSelected =
                           selectedQuestion?.id === q.id && selectedQuestion?.question === alt.question
                         return (
-                          <div
+                          <button
                             key={i}
-                            className={`p-3 rounded-lg border transition-colors ${
+                            type="button"
+                            onClick={() => onSelectQuestion({ ...q, question: alt.question })}
+                            className={`w-full text-right p-3 rounded-lg border transition-colors ${
                               isAltSelected
-                                ? 'border-violet-500 bg-violet-500/10'
-                                : 'border-slate-700 bg-slate-800'
+                                ? 'border-violet-500 bg-violet-500/10 cursor-default'
+                                : 'border-slate-700 bg-slate-800 hover:border-violet-500/50 hover:bg-violet-500/5'
                             }`}
                           >
                             <div className="flex items-start gap-2">
                               <p className="text-sm font-medium text-white flex-1 leading-relaxed">{alt.question}</p>
+                              <div className={`mt-0.5 w-4 h-4 rounded shrink-0 border flex items-center justify-center transition-colors ${
+                                isAltSelected
+                                  ? 'bg-violet-600 border-violet-600'
+                                  : 'border-slate-500'
+                              }`}>
+                                {isAltSelected && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
+                              </div>
                             </div>
                             {alt.explanation && (
                               <p className="text-sm text-slate-500 mt-1">{alt.explanation}</p>
                             )}
-                            <button
-                              type="button"
-                              onClick={() => onSelectQuestion({ ...q, question: alt.question })}
-                              disabled={isAltSelected}
-                              className={`mt-2 text-xs font-medium px-2.5 py-1 rounded-lg transition-colors ${
-                                isAltSelected
-                                  ? 'bg-violet-600/30 text-violet-300 cursor-default'
-                                  : 'bg-slate-700 text-slate-300 hover:bg-violet-600/20 hover:text-violet-300'
-                              }`}
-                            >
-                              {isAltSelected ? '✓ נבחרה לתיק הפרויקט' : 'בחר שאלה זו לתיק הפרויקט'}
-                            </button>
-                          </div>
+                          </button>
                         )
                       })}
                     </div>
