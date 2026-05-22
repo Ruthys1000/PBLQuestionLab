@@ -831,12 +831,14 @@ export default function HomePage() {
 
   useEffect(() => {
     if (mode !== 'archive') return
+    const controller = new AbortController()
     setArchiveLoading(true)
-    fetch('/api/archive')
+    fetch('/api/archive', { signal: controller.signal })
       .then(r => r.json())
       .then(d => setArchiveQuestions(d.questions ?? []))
-      .catch(() => setArchiveQuestions([]))
+      .catch(err => { if (err.name !== 'AbortError') setArchiveQuestions([]) })
       .finally(() => setArchiveLoading(false))
+    return () => controller.abort()
   }, [mode])
 
   useEffect(() => {

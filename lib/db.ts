@@ -38,7 +38,7 @@ export async function ensureTable(): Promise<void> {
       )
     `
     globalForPrisma.tableReady = true
-  } catch {
-    // ignore — table might already exist or DB unavailable
+  } catch (err) {
+    console.error('[ensureTable] DB error:', err)
   }
 }

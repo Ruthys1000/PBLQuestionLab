@@ -30,8 +30,8 @@ export async function POST(req: NextRequest) {
             },
           })
         ))
-      } catch {
-        // שגיאת DB לא תפיל את תהליך יצירת השאלה
+      } catch (err) {
+        console.error('[generate] DB archive error (non-fatal):', err)
       }
     }
 

@@ -24,7 +24,8 @@ export async function GET() {
       },
     })
     return NextResponse.json({ questions: rows })
-  } catch {
+  } catch (err) {
+    console.error('[archive] DB error:', err)
     return NextResponse.json({ questions: [] })
   }
 }

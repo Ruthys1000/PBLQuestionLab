@@ -15,8 +15,6 @@ import {
 
 function isMock() { return !process.env.ANTHROPIC_API_KEY }
 
-console.log('[anthropic] API key present:', !!process.env.ANTHROPIC_API_KEY)
-
 function getClient(): Anthropic {
   return new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 }
@@ -37,7 +35,7 @@ async function callClaude(
     try {
       const response = await client.messages.create(
         {
-          model: 'claude-sonnet-4-6',
+          model: process.env.CLAUDE_MODEL ?? 'claude-sonnet-4-6',
           max_tokens: maxTokens,
           system: systemPrompt,
           messages: [{ role: 'user', content: userMessage }],
@@ -54,7 +52,6 @@ async function callClaude(
       }
       return block.text
     } catch (err) {
-      clearTimeout(timeoutId)
       const isOverloaded =
         err instanceof Anthropic.APIError && err.status === 529
       if (isOverloaded && attempt < maxRetries) {
