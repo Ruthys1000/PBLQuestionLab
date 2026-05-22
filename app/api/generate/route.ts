@@ -16,18 +16,22 @@ export async function POST(req: NextRequest) {
     const mockMode = !process.env.ANTHROPIC_API_KEY
 
     if (prisma && !mockMode) {
-      await Promise.all(questions.map(q =>
-        prisma!.archivedQuestion.create({
-          data: {
-            topic: input.topic,
-            grade: input.grade,
-            subjects: JSON.stringify(input.subjects),
-            question: q.question,
-            overall_score: q.stress_test.overall_score,
-            full_data: JSON.stringify(q),
-          },
-        })
-      ))
+      try {
+        await Promise.all(questions.map(q =>
+          prisma!.archivedQuestion.create({
+            data: {
+              topic: input.topic,
+              grade: input.grade,
+              subjects: JSON.stringify(input.subjects),
+              question: q.question,
+              overall_score: q.stress_test.overall_score,
+              full_data: JSON.stringify(q),
+            },
+          })
+        ))
+      } catch {
+        // שגיאת DB לא תפיל את תהליך יצירת השאלה
+      }
     }
 
     return NextResponse.json({ questions, mockMode })
