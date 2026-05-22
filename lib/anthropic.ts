@@ -142,7 +142,7 @@ export async function generateProjectBrief(params: {
   }
 
   try {
-    const raw = await callClaude(BRIEF_SYSTEM_PROMPT, JSON.stringify(params), 4000)
+    const raw = await callClaude(BRIEF_SYSTEM_PROMPT, JSON.stringify(params), 8000)
     const parsed = parseJSON<{ brief: ProjectBrief }>(raw, 'generateProjectBrief')
     return parsed.brief
   } catch (err) {
