@@ -361,7 +361,6 @@ function ResultsScreen({
                           >
                             <div className="flex items-start gap-2">
                               <p className="text-sm font-medium text-white flex-1 leading-relaxed">{alt.question}</p>
-                              <CopyButton text={alt.question} label="העתק ניסוח" />
                             </div>
                             {alt.explanation && (
                               <p className="text-sm text-slate-500 mt-1">{alt.explanation}</p>
