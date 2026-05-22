@@ -107,15 +107,19 @@ const EXAMPLES = [
 
 export async function GET() {
   if (!prisma) {
-    return NextResponse.json({ error: 'אין חיבור לDB' }, { status: 503 })
+    return NextResponse.json({ error: 'אין חיבור לDB — DATABASE_URL לא מוגדר' }, { status: 503 })
   }
 
-  const existing = await prisma.archivedQuestion.count()
-  if (existing > 0) {
-    return NextResponse.json({ message: `הארכיון כבר מכיל ${existing} שאלות — לא נוספו דוגמאות.` })
+  try {
+    const existing = await prisma.archivedQuestion.count()
+    if (existing > 0) {
+      return NextResponse.json({ message: `הארכיון כבר מכיל ${existing} שאלות — לא נוספו דוגמאות.` })
+    }
+
+    await prisma.archivedQuestion.createMany({ data: EXAMPLES })
+    return NextResponse.json({ message: `נוספו ${EXAMPLES.length} שאלות דוגמה לארכיון.` })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err)
+    return NextResponse.json({ error: `שגיאת DB: ${message}` }, { status: 500 })
   }
-
-  await prisma.archivedQuestion.createMany({ data: EXAMPLES })
-
-  return NextResponse.json({ message: `נוספו ${EXAMPLES.length} שאלות דוגמה לארכיון.` })
 }
