@@ -16,6 +16,7 @@ import {
   Check,
   Printer,
   AlertTriangle,
+  BarChart2,
 } from 'lucide-react'
 import type {
   AppMode,
@@ -76,23 +77,28 @@ const STRESS_LABELS: Record<keyof Omit<StressTest, 'overall_score'>, string> = {
 function StressTestPanel({ stressTest }: { stressTest: StressTest }) {
   const [open, setOpen] = useState(false)
   const criteria = Object.entries(STRESS_LABELS) as [keyof typeof STRESS_LABELS, string][]
+  const scoreColor =
+    stressTest.overall_score >= 8 ? 'bg-emerald-900/60 text-emerald-300'
+    : stressTest.overall_score >= 5 ? 'bg-amber-900/60 text-amber-300'
+    : 'bg-rose-900/60 text-rose-300'
 
   return (
-    <div className="mt-4 rounded-xl border border-slate-700 bg-slate-800/50 overflow-hidden">
+    <div className="mt-4 rounded-xl border border-violet-500/40 bg-violet-950/20 overflow-hidden">
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-slate-300 hover:text-white transition-colors"
+        className="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-slate-100 hover:text-white hover:bg-violet-900/20 transition-colors"
       >
         <span className="flex items-center gap-2">
+          <BarChart2 className="w-4 h-4 text-violet-400 shrink-0" strokeWidth={1.5} />
           <span>מבחן לחץ פדגוגי</span>
-          <span className="text-xs bg-slate-700 text-slate-400 px-2 py-0.5 rounded-full">
+          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${scoreColor}`}>
             {stressTest.overall_score.toFixed(1)} / 10
           </span>
         </span>
         {open
-          ? <ChevronUp className="w-4 h-4 text-slate-500" strokeWidth={1.5} />
-          : <ChevronDown className="w-4 h-4 text-slate-500" strokeWidth={1.5} />
+          ? <ChevronUp className="w-4 h-4 text-violet-400" strokeWidth={1.5} />
+          : <ChevronDown className="w-4 h-4 text-violet-400" strokeWidth={1.5} />
         }
       </button>
 
