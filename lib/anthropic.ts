@@ -60,6 +60,9 @@ async function callClaude(
         await new Promise((resolve) => setTimeout(resolve, delay))
         continue
       }
+      if (isOverloaded) {
+        throw new Error('שירות ה-AI עמוס כרגע. אנא המתן מספר דקות ונסה שוב.')
+      }
       throw err
     } finally {
       clearTimeout(timeoutId)
@@ -100,7 +103,7 @@ export async function generateQuestions(input: FormInput): Promise<BigQuestion[]
     return parsed.questions
   } catch (err) {
     console.error('[generateQuestions] Anthropic error:', err)
-    if (err instanceof Error && err.message.startsWith('שגיאה')) throw err
+    if (err instanceof Error && !(err instanceof Anthropic.APIError)) throw err
     const msg = err instanceof Error ? err.message : String(err)
     throw new Error(`שגיאת שרת: ${msg}`)
   }
@@ -119,7 +122,7 @@ export async function diagnoseQuestion(input: DiagnoseInput): Promise<DiagnosisR
     return parsed.diagnosis
   } catch (err) {
     console.error('[diagnoseQuestion] Anthropic error:', err)
-    if (err instanceof Error && err.message.startsWith('שגיאה')) throw err
+    if (err instanceof Error && !(err instanceof Anthropic.APIError)) throw err
     const msg = err instanceof Error ? err.message : String(err)
     throw new Error(`שגיאת שרת: ${msg}`)
   }
@@ -141,7 +144,7 @@ export async function generateProjectBrief(params: {
     return parsed.brief
   } catch (err) {
     console.error('[generateProjectBrief] Anthropic error:', err)
-    if (err instanceof Error && err.message.startsWith('שגיאה')) throw err
+    if (err instanceof Error && !(err instanceof Anthropic.APIError)) throw err
     const msg = err instanceof Error ? err.message : String(err)
     throw new Error(`שגיאת שרת: ${msg}`)
   }
