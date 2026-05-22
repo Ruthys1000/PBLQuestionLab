@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/db'
+import { prisma, ensureTable } from '@/lib/db'
 
 export async function GET() {
   if (!prisma) {
@@ -7,6 +7,7 @@ export async function GET() {
   }
 
   try {
+    await ensureTable()
     const rows = await prisma.archivedQuestion.findMany({
       orderBy: { created_at: 'desc' },
       take: 100,
