@@ -1,4 +1,4 @@
-export type AppMode = 'home' | 'generate' | 'diagnose' | 'results' | 'diagnosis' | 'brief'
+export type AppMode = 'home' | 'generate' | 'diagnose' | 'results' | 'diagnosis' | 'brief' | 'archive'
 
 export interface StressCriterion {
   score: number
@@ -85,6 +85,16 @@ export interface DiagnoseInput {
   required_content: string
   duration: string
   boldness: 'conservative' | 'balanced' | 'bold'
+}
+
+export interface ArchiveItem {
+  id: string
+  topic: string
+  grade: string
+  subjects: string
+  question: string
+  overall_score: number
+  created_at: string
 }
 
 export interface DiagnosisResult {

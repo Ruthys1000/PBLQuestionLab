@@ -1,0 +1,19 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model ArchivedQuestion {
+  id            String   @id @default(cuid())
+  topic         String
+  grade         String
+  subjects      String
+  question      String
+  overall_score Float
+  full_data     String
+  created_at    DateTime @default(now())
+}
