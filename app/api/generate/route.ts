@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import type { FormInput } from '@/types'
 import { generateQuestions } from '@/lib/anthropic'
-import { prisma } from '@/lib/db'
+import { prisma, ensureTable } from '@/lib/db'
 
 export async function POST(req: NextRequest) {
   let input: FormInput
@@ -17,6 +17,7 @@ export async function POST(req: NextRequest) {
 
     if (prisma && !mockMode) {
       try {
+        await ensureTable()
         await Promise.all(questions.map(q =>
           prisma!.archivedQuestion.create({
             data: {
