@@ -39,9 +39,18 @@ async function postJSON<T>(url: string, body: unknown): Promise<T> {
   }
 
   if (!res.ok) {
-    const message = typeof data.error === 'string'
-      ? data.error
-      : `שגיאת שרת ${res.status}: ${JSON.stringify(data)}`
+    let message: string
+    if (typeof data.error === 'string') {
+      message = data.error
+    } else if (
+      typeof data.error === 'object' &&
+      data.error !== null &&
+      (data.error as Record<string, unknown>).type === 'overloaded_error'
+    ) {
+      message = 'שירות ה-AI עמוס כרגע. אנא המתן מספר דקות ונסה שוב.'
+    } else {
+      message = `שגיאת שרת ${res.status}: ${JSON.stringify(data)}`
+    }
     throw new Error(message)
   }
 

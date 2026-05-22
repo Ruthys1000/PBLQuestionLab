@@ -27,7 +27,7 @@ async function callClaude(
   maxTokens = 4000,
 ): Promise<string> {
   const client = getClient()
-  const maxRetries = 3
+  const maxRetries = 2
   const baseDelay = 5000
 
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
@@ -65,7 +65,7 @@ async function callClaude(
       clearTimeout(timeoutId)
     }
   }
-  throw new Error('שגיאה: לא ניתן להתחבר לשרת לאחר מספר ניסיונות. נסה שוב מאוחר יותר.')
+  throw new Error('שירות ה-AI עמוס כרגע. אנא המתן מספר דקות ונסה שוב.')
 }
 
 function extractJSON(raw: string): string {

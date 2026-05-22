@@ -462,8 +462,14 @@ function ResultsScreen({
           )}
 
           {briefError && (
-            <div className="rounded-xl border border-rose-700/50 bg-rose-900/30 px-4 py-3">
+            <div className="rounded-xl border border-rose-700/50 bg-rose-900/30 px-4 py-3 flex items-start justify-between gap-3">
               <p className="text-sm text-rose-300">{briefError}</p>
+              <button
+                onClick={onGenerateBrief}
+                className="shrink-0 text-xs text-rose-300 border border-rose-700/50 rounded-lg px-3 py-1 hover:bg-rose-800/30 transition-colors"
+              >
+                נסה שוב
+              </button>
             </div>
           )}
         </div>
