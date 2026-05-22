@@ -18,6 +18,7 @@ import {
   AlertTriangle,
   BarChart2,
   Archive,
+  Trash2,
 } from 'lucide-react'
 import type {
   AppMode,
@@ -827,6 +828,10 @@ export default function HomePage() {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' } | null>(null)
   const [archiveQuestions, setArchiveQuestions] = useState<ArchiveItem[]>([])
   const [archiveLoading, setArchiveLoading] = useState(false)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [deletePin, setDeletePin] = useState('')
+  const [deleteError, setDeleteError] = useState<string | null>(null)
+  const [deleteLoading, setDeleteLoading] = useState(false)
 
   useEffect(() => {
     window.scrollTo({ top: 0 })
@@ -906,6 +911,30 @@ export default function HomePage() {
       setBriefError(err instanceof Error ? err.message : 'שגיאה ביצירת תיק פרויקט')
     } finally {
       setBriefLoading(false)
+    }
+  }
+
+  async function handleDelete(id: string) {
+    setDeleteLoading(true)
+    setDeleteError(null)
+    try {
+      const res = await fetch(`/api/archive/${id}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pin: deletePin }),
+      })
+      if (!res.ok) {
+        const data = await res.json() as { error?: string }
+        setDeleteError(data.error ?? 'שגיאת מחיקה')
+        return
+      }
+      setArchiveQuestions((prev) => prev.filter((q) => q.id !== id))
+      setDeletingId(null)
+      setDeletePin('')
+    } catch {
+      setDeleteError('שגיאת רשת')
+    } finally {
+      setDeleteLoading(false)
     }
   }
 
@@ -1178,6 +1207,7 @@ export default function HomePage() {
                   if (!item.full_data) return null
                   try { return JSON.parse(item.full_data) as BigQuestion } catch { return null }
                 })()
+                const isDeleting = deletingId === item.id
                 return (
                   <div
                     key={item.id}
@@ -1188,17 +1218,63 @@ export default function HomePage() {
                         <p className="text-sm font-semibold text-white truncate">{item.topic}</p>
                         <p className="text-xs text-slate-500">{item.grade}{subjects ? ` · ${subjects}` : ''}</p>
                       </div>
-                      <span className={`text-xs font-bold px-2 py-0.5 rounded-full shrink-0 ${scoreColor}`}>
-                        {item.overall_score.toFixed(1)}
-                      </span>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${scoreColor}`}>
+                          {item.overall_score.toFixed(1)}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => { setDeletingId(item.id); setDeletePin(''); setDeleteError(null) }}
+                          className="p-1 rounded text-slate-600 hover:text-rose-400 transition-colors"
+                          aria-label="מחק שאלה"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" strokeWidth={1.5} />
+                        </button>
+                      </div>
                     </div>
-                    <p className="text-sm text-slate-300 leading-relaxed line-clamp-3">{item.question}</p>
-                    {fullData?.stress_test && (
-                      <StressTestPanel stressTest={fullData.stress_test} />
+
+                    {isDeleting ? (
+                      <div className="space-y-2 pt-1">
+                        <p className="text-xs text-slate-400">הזן קוד מחיקה:</p>
+                        <input
+                          type="password"
+                          value={deletePin}
+                          onChange={(e) => setDeletePin(e.target.value)}
+                          onKeyDown={(e) => { if (e.key === 'Enter') void handleDelete(item.id) }}
+                          className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 w-full text-white text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"
+                          placeholder="קוד..."
+                          autoFocus
+                        />
+                        {deleteError && <p className="text-xs text-rose-400">{deleteError}</p>}
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() => void handleDelete(item.id)}
+                            disabled={deleteLoading || !deletePin}
+                            className="flex-1 py-1.5 rounded-lg bg-rose-900/40 border border-rose-700/50 text-rose-300 text-xs font-medium hover:bg-rose-900/70 disabled:opacity-40 transition-colors"
+                          >
+                            {deleteLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin mx-auto" strokeWidth={1.5} /> : 'מחק'}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => { setDeletingId(null); setDeletePin(''); setDeleteError(null) }}
+                            className="flex-1 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-slate-400 text-xs font-medium hover:text-white transition-colors"
+                          >
+                            ביטול
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <p className="text-sm text-slate-300 leading-relaxed line-clamp-3">{item.question}</p>
+                        {fullData?.stress_test && (
+                          <StressTestPanel stressTest={fullData.stress_test} />
+                        )}
+                        <p className="text-xs text-slate-600">
+                          {new Date(item.created_at).toLocaleDateString('he-IL')}
+                        </p>
+                      </>
                     )}
-                    <p className="text-xs text-slate-600">
-                      {new Date(item.created_at).toLocaleDateString('he-IL')}
-                    </p>
                   </div>
                 )
               })}
@@ -1236,16 +1312,28 @@ export default function HomePage() {
             חזור
           </button>
 
-          {showRestart && (
-            <button
-              type="button"
-              onClick={() => setShowConfirm(true)}
-              className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-white transition-colors"
-            >
-              <RotateCcw className="w-3.5 h-3.5" strokeWidth={1.5} />
-              התחל מחדש
-            </button>
-          )}
+          <div className="flex items-center gap-3">
+            {mode === 'brief' && (
+              <button
+                type="button"
+                onClick={() => window.print()}
+                className="inline-flex items-center gap-1.5 text-sm text-slate-400 hover:text-white transition-colors"
+              >
+                <Printer className="w-3.5 h-3.5" strokeWidth={1.5} />
+                הדפסה
+              </button>
+            )}
+            {showRestart && (
+              <button
+                type="button"
+                onClick={() => setShowConfirm(true)}
+                className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-white transition-colors"
+              >
+                <RotateCcw className="w-3.5 h-3.5" strokeWidth={1.5} />
+                התחל מחדש
+              </button>
+            )}
+          </div>
         </div>
       </div>
 

@@ -72,8 +72,18 @@ interface Props {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
+const LS_KEY = 'pbl-generate-form'
+
 export default function GenerateForm({ onSuccess }: Props) {
-  const [form, setForm] = useState<FormInput>(INITIAL_FORM)
+  const [form, setForm] = useState<FormInput>(() => {
+    if (typeof window === 'undefined') return INITIAL_FORM
+    try {
+      const saved = localStorage.getItem(LS_KEY)
+      return saved ? (JSON.parse(saved) as FormInput) : INITIAL_FORM
+    } catch {
+      return INITIAL_FORM
+    }
+  })
   const [errors, setErrors] = useState<Partial<Record<keyof FormInput, string>>>({})
   const [touched, setTouched] = useState<Partial<Record<keyof FormInput, boolean>>>({})
   const [loading, setLoading] = useState(false)
@@ -81,6 +91,11 @@ export default function GenerateForm({ onSuccess }: Props) {
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [customSubjectInput, setCustomSubjectInput] = useState('')
   const [progress, setProgress] = useState(0)
+
+  useEffect(() => {
+    if (loading) return
+    try { localStorage.setItem(LS_KEY, JSON.stringify(form)) } catch { /* quota exceeded */ }
+  }, [form, loading])
 
   useEffect(() => {
     if (!loading) return
@@ -177,6 +192,7 @@ export default function GenerateForm({ onSuccess }: Props) {
     try {
       const { questions, mockMode } = await createQuestions(form)
       setProgress(100)
+      try { localStorage.removeItem(LS_KEY) } catch { /* ignore */ }
       onSuccess(questions, mockMode, form)
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : 'שגיאה לא ידועה')

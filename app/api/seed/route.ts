@@ -9,7 +9,7 @@ const EXAMPLES = [
     grade: 'י–יב',
     subjects: JSON.stringify(['אזרחות', 'גיאוגרפיה', 'ספרות']),
     question: 'מה חובתה של חברה שרוצה להיות צודקת כלפי מי שמגיעים אליה בלי לבחור בכך?',
-    overall_score: 8.4,
+    overall_score: 8.5,
     full_data: JSON.stringify({
       id: 'seed-1',
       question: 'מה חובתה של חברה שרוצה להיות צודקת כלפי מי שמגיעים אליה בלי לבחור בכך?',
@@ -42,7 +42,7 @@ const EXAMPLES = [
     grade: 'ז–ט',
     subjects: JSON.stringify(['ביולוגיה', 'כלכלה', 'מדעי הסביבה']),
     question: 'כיצד יכולים בני נוער בשכונה אחת לשנות את מה שאנשים אוכלים בה?',
-    overall_score: 7.9,
+    overall_score: 8.0,
     full_data: JSON.stringify({
       id: 'seed-2',
       question: 'כיצד יכולים בני נוער בשכונה אחת לשנות את מה שאנשים אוכלים בה?',
@@ -75,7 +75,7 @@ const EXAMPLES = [
     grade: 'י–יב',
     subjects: JSON.stringify(['ביולוגיה', 'היסטוריה', 'אתיקה']),
     question: 'מתי זכותה של מדינה להגביל את חירות הפרט בשם בריאות הציבור — ומי מחליט?',
-    overall_score: 9.1,
+    overall_score: 9.2,
     full_data: JSON.stringify({
       id: 'seed-3',
       question: 'מתי זכותה של מדינה להגביל את חירות הפרט בשם בריאות הציבור — ומי מחליט?',
