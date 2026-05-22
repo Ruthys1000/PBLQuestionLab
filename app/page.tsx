@@ -462,14 +462,24 @@ function ResultsScreen({
           )}
 
           {briefError && (
-            <div className="rounded-xl border border-rose-700/50 bg-rose-900/30 px-4 py-3 flex items-start justify-between gap-3">
-              <p className="text-sm text-rose-300">{briefError}</p>
-              <button
-                onClick={onGenerateBrief}
-                className="shrink-0 text-xs text-rose-300 border border-rose-700/50 rounded-lg px-3 py-1 hover:bg-rose-800/30 transition-colors"
+            <div className="rounded-xl border border-rose-700/50 bg-rose-900/30 px-4 py-3 space-y-2">
+              <div className="flex items-start justify-between gap-3">
+                <p className="text-sm text-rose-300">{briefError}</p>
+                <button
+                  onClick={onGenerateBrief}
+                  className="shrink-0 text-xs text-rose-300 border border-rose-700/50 rounded-lg px-3 py-1 hover:bg-rose-800/30 transition-colors"
+                >
+                  נסה שוב
+                </button>
+              </div>
+              <a
+                href="https://status.anthropic.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-rose-400/70 underline block"
               >
-                נסה שוב
-              </button>
+                בדוק את סטטוס שירות Anthropic ←
+              </a>
             </div>
           )}
         </div>
@@ -870,7 +880,7 @@ export default function HomePage() {
   }
 
   async function handleGenerateBrief() {
-    if (!selectedQuestion) return
+    if (!selectedQuestion || briefLoading) return
     const originalInput = formInput ?? diagnoseInput
     if (!originalInput) return
     setBriefLoading(true)

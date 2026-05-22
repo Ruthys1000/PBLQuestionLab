@@ -55,8 +55,8 @@ async function callClaude(
       const isOverloaded =
         err instanceof Anthropic.APIError && err.status === 529
       if (isOverloaded && attempt < maxRetries) {
-        const delay = baseDelay * Math.pow(2, attempt)
-        console.warn(`[callClaude] API overloaded (529), retrying in ${delay}ms (attempt ${attempt + 1}/${maxRetries})`)
+        const delay = baseDelay * Math.pow(2, attempt) * (0.75 + Math.random() * 0.5)
+        console.warn(`[callClaude] API overloaded (529), retrying in ${Math.round(delay)}ms (attempt ${attempt + 1}/${maxRetries})`)
         await new Promise((resolve) => setTimeout(resolve, delay))
         continue
       }
@@ -136,7 +136,7 @@ export async function generateProjectBrief(params: {
   }
 
   try {
-    const raw = await callClaude(BRIEF_SYSTEM_PROMPT, JSON.stringify(params), 5000)
+    const raw = await callClaude(BRIEF_SYSTEM_PROMPT, JSON.stringify(params), 4000)
     const parsed = parseJSON<{ brief: ProjectBrief }>(raw, 'generateProjectBrief')
     return parsed.brief
   } catch (err) {
