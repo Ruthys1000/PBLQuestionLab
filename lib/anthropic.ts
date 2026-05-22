@@ -45,6 +45,9 @@ async function callClaude(
         { signal: controller.signal },
       )
 
+      if (response.stop_reason === 'max_tokens') {
+        throw new Error('שגיאה: התגובה קוצרה — נסה שוב, הפרויקט גדול מדי לעיבוד בפעם אחת.')
+      }
       const block = response.content[0]
       if (!block || block.type !== 'text') {
         throw new Error('שגיאה: Claude לא החזיר תוכן טקסטואלי')
