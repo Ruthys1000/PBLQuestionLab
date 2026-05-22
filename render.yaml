@@ -2,7 +2,7 @@ services:
   - type: web
     name: pbl-question-lab
     runtime: node
-    buildCommand: npm install && npx prisma db push && npm run build
+    buildCommand: npm install && (npx prisma db push || true) && npm run build
     startCommand: npm start
     envVars:
       - key: ANTHROPIC_API_KEY
