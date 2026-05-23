@@ -138,8 +138,11 @@ export async function generateProjectBrief(params: {
     return mockProjectBrief
   }
 
+  const { question, why_it_works, sub_questions, product_ideas } = params.selectedQuestion
+  const slimInput = { question, why_it_works, sub_questions, product_ideas, originalInput: params.originalInput }
+
   try {
-    const raw = await callClaude(BRIEF_SYSTEM_PROMPT, JSON.stringify(params), 8000)
+    const raw = await callClaude(BRIEF_SYSTEM_PROMPT, JSON.stringify(slimInput), 4000)
     const parsed = parseJSON<{ brief: ProjectBrief }>(raw, 'generateProjectBrief')
     return parsed.brief
   } catch (err) {

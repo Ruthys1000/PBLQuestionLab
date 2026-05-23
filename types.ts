@@ -24,11 +24,6 @@ export interface AlternativeFormulation {
   explanation: string
 }
 
-export interface Differentiation {
-  support: string
-  extension: string
-}
-
 export interface BigQuestion {
   id: string
   question: string
@@ -50,16 +45,11 @@ export interface RubricRow {
 
 export interface ProjectBrief {
   project_title: string
-  driving_question: string
   teacher_summary: string
   learning_goals: string[]
-  knowledge_content: string[]
-  skills: string[]
   sub_questions: string[]
   inquiry_stages: string[]
-  possible_products: string[]
   rubric: RubricRow[]
-  differentiation: Differentiation
   opening_experience: string
 }
 

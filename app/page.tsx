@@ -561,105 +561,31 @@ function DiagnosisScreen({ diagnosis }: { diagnosis: DiagnosisResult }) {
 
 // ─── Brief screen ─────────────────────────────────────────────────────────────
 
-function BriefScreen({ brief }: { brief: ProjectBrief }) {
+function BriefScreen({ brief, selectedQuestion }: { brief: ProjectBrief; selectedQuestion: BigQuestion }) {
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <div className="space-y-3">
-        <h3 className="text-2xl font-bold text-white">{brief.project_title}</h3>
+
+      {/* ── Part A: question analysis (from memory, no extra AI cost) ── */}
+      <div className="space-y-4">
+        <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest">השאלה המנחה</p>
         <div className="p-4 rounded-xl bg-violet-500/10 border border-violet-500/30">
           <div className="flex items-start gap-2">
             <p className="text-sm font-medium text-violet-200 leading-relaxed flex-1">
-              {brief.driving_question}
+              {selectedQuestion.question}
             </p>
-            <CopyButton text={brief.driving_question} label="העתק שאלה מנחה" />
+            <CopyButton text={selectedQuestion.question} label="העתק שאלה מנחה" />
           </div>
         </div>
-        {brief.teacher_summary && (
-          <p className="text-sm text-slate-400 leading-relaxed">{brief.teacher_summary}</p>
+        {selectedQuestion.why_it_works && (
+          <p className="text-sm text-slate-400 leading-relaxed">{selectedQuestion.why_it_works}</p>
         )}
       </div>
 
-      {/* Learning goals */}
-      {brief.learning_goals.length > 0 && (
-        <section className="pt-6 border-t border-slate-800">
-          <h4 className="text-sm font-semibold text-slate-300 mb-3">מטרות למידה</h4>
-          <ul className="space-y-2">
-            {brief.learning_goals.map((g, i) => (
-              <li key={i} className="text-sm text-slate-300 flex gap-2">
-                <span className="text-violet-400 shrink-0 font-semibold">{i + 1}.</span>
-                {g}
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      {/* Knowledge content */}
-      {brief.knowledge_content.length > 0 && (
-        <section className="pt-6 border-t border-slate-800">
-          <h4 className="text-sm font-semibold text-slate-300 mb-3">תכנים ומושגי מפתח</h4>
-          <ul className="space-y-1.5">
-            {brief.knowledge_content.map((k, i) => (
-              <li key={i} className="text-sm text-slate-300 flex gap-2">
-                <span className="text-violet-400 shrink-0">•</span>
-                {k}
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      {/* Skills */}
-      {brief.skills.length > 0 && (
-        <section className="pt-6 border-t border-slate-800">
-          <h4 className="text-sm font-semibold text-slate-300 mb-3">מיומנויות</h4>
-          <ul className="space-y-1.5">
-            {brief.skills.map((s, i) => (
-              <li key={i} className="text-sm text-slate-300 flex gap-2">
-                <span className="text-violet-400 shrink-0">•</span>
-                {s}
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      {/* Sub-questions */}
-      {brief.sub_questions.length > 0 && (
-        <section className="pt-6 border-t border-slate-800">
-          <h4 className="text-sm font-semibold text-slate-300 mb-3">שאלות משנה</h4>
-          <ul className="space-y-2">
-            {brief.sub_questions.map((sq, i) => (
-              <li key={i} className="text-sm text-slate-300 flex gap-2">
-                <span className="text-violet-400 shrink-0 font-semibold">{i + 1}.</span>
-                {sq}
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      {/* Inquiry stages */}
-      {brief.inquiry_stages.length > 0 && (
-        <section className="pt-6 border-t border-slate-800">
-          <h4 className="text-sm font-semibold text-slate-300 mb-3">שלבי החקירה</h4>
-          <div className="space-y-2">
-            {brief.inquiry_stages.map((stage, i) => (
-              <div key={i} className="p-3 rounded-lg bg-slate-800 border-r-2 border-violet-500">
-                <p className="text-sm text-slate-300 leading-relaxed">{stage}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Possible products */}
-      {brief.possible_products.length > 0 && (
+      {selectedQuestion.product_ideas.length > 0 && (
         <section className="pt-6 border-t border-slate-800">
           <h4 className="text-sm font-semibold text-slate-300 mb-3">תוצרים אפשריים</h4>
           <ul className="space-y-1.5">
-            {brief.possible_products.map((p, i) => (
+            {selectedQuestion.product_ideas.map((p, i) => (
               <li key={i} className="text-sm text-slate-300 flex gap-2">
                 <span className="text-violet-400 shrink-0">•</span>
                 {p}
@@ -669,90 +595,119 @@ function BriefScreen({ brief }: { brief: ProjectBrief }) {
         </section>
       )}
 
-      {/* Rubric */}
-      {brief.rubric.length > 0 && (
-        <section className="pt-6 border-t border-slate-800">
-          <h4 className="text-sm font-semibold text-slate-300 mb-3">רובריקה</h4>
+      {/* ── Part B: generated brief ── */}
+      <div className="pt-6 border-t-2 border-slate-700 space-y-8">
+        <div className="space-y-1">
+          <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest">תיק הפרויקט</p>
+          <h3 className="text-2xl font-bold text-white">{brief.project_title}</h3>
+          {brief.teacher_summary && (
+            <p className="text-sm text-slate-400 leading-relaxed pt-1">{brief.teacher_summary}</p>
+          )}
+        </div>
 
-          {/* Mobile: card layout */}
-          <div className="md:hidden space-y-4">
-            {brief.rubric.map((row, i) => (
-              <div key={i} className="rounded-xl border border-slate-700 bg-slate-800 overflow-hidden">
-                <div className="px-4 py-2.5 bg-slate-700/50 border-b border-slate-700">
-                  <p className="text-sm font-semibold text-white">{row.criterion}</p>
-                </div>
-                <div className="divide-y divide-slate-800">
-                  {(['מתחיל', 'מתפתח', 'מיומן'] as const).map((level, li) => {
-                    const vals = [row.beginning, row.developing, row.proficient]
-                    return (
-                      <div key={level} className="px-4 py-3 flex gap-3">
-                        <span className="text-xs font-semibold text-violet-400 w-12 shrink-0 pt-0.5">{level}</span>
-                        <p className="text-sm text-slate-300 leading-relaxed">{vals[li]}</p>
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
-            ))}
-          </div>
+        {brief.learning_goals.length > 0 && (
+          <section className="pt-6 border-t border-slate-800">
+            <h4 className="text-sm font-semibold text-slate-300 mb-3">מטרות למידה</h4>
+            <ul className="space-y-2">
+              {brief.learning_goals.map((g, i) => (
+                <li key={i} className="text-sm text-slate-300 flex gap-2">
+                  <span className="text-violet-400 shrink-0 font-semibold">{i + 1}.</span>
+                  {g}
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
-          {/* Desktop: table layout */}
-          <div className="hidden md:block overflow-x-auto rounded-xl border border-slate-700">
-            <table className="w-full text-sm">
-              <thead className="bg-slate-800/50 border-b border-slate-700">
-                <tr>
-                  {['קריטריון', 'מתחיל', 'מתפתח', 'מיומן'].map((h) => (
-                    <th key={h} className="px-3 py-2 text-right font-medium text-slate-300">
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {brief.rubric.map((row, i) => (
-                  <tr key={i} className="border-b border-slate-800 last:border-0">
-                    <td className="px-3 py-2 font-medium text-white align-top">{row.criterion}</td>
-                    <td className="px-3 py-2 text-slate-400 align-top">{row.beginning}</td>
-                    <td className="px-3 py-2 text-slate-400 align-top">{row.developing}</td>
-                    <td className="px-3 py-2 text-slate-400 align-top">{row.proficient}</td>
+        {brief.sub_questions.length > 0 && (
+          <section className="pt-6 border-t border-slate-800">
+            <h4 className="text-sm font-semibold text-slate-300 mb-3">שאלות משנה</h4>
+            <ul className="space-y-2">
+              {brief.sub_questions.map((sq, i) => (
+                <li key={i} className="text-sm text-slate-300 flex gap-2">
+                  <span className="text-violet-400 shrink-0 font-semibold">{i + 1}.</span>
+                  {sq}
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {brief.inquiry_stages.length > 0 && (
+          <section className="pt-6 border-t border-slate-800">
+            <h4 className="text-sm font-semibold text-slate-300 mb-3">שלבי החקירה</h4>
+            <div className="space-y-2">
+              {brief.inquiry_stages.map((stage, i) => (
+                <div key={i} className="p-3 rounded-lg bg-slate-800 border-r-2 border-violet-500">
+                  <p className="text-sm text-slate-300 leading-relaxed">{stage}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {brief.rubric.length > 0 && (
+          <section className="pt-6 border-t border-slate-800">
+            <h4 className="text-sm font-semibold text-slate-300 mb-3">רובריקה</h4>
+
+            {/* Mobile: card layout */}
+            <div className="md:hidden space-y-4">
+              {brief.rubric.map((row, i) => (
+                <div key={i} className="rounded-xl border border-slate-700 bg-slate-800 overflow-hidden">
+                  <div className="px-4 py-2.5 bg-slate-700/50 border-b border-slate-700">
+                    <p className="text-sm font-semibold text-white">{row.criterion}</p>
+                  </div>
+                  <div className="divide-y divide-slate-800">
+                    {(['מתחיל', 'מתפתח', 'מיומן'] as const).map((level, li) => {
+                      const vals = [row.beginning, row.developing, row.proficient]
+                      return (
+                        <div key={level} className="px-4 py-3 flex gap-3">
+                          <span className="text-xs font-semibold text-violet-400 w-12 shrink-0 pt-0.5">{level}</span>
+                          <p className="text-sm text-slate-300 leading-relaxed">{vals[li]}</p>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop: table layout */}
+            <div className="hidden md:block overflow-x-auto rounded-xl border border-slate-700">
+              <table className="w-full text-sm">
+                <thead className="bg-slate-800/50 border-b border-slate-700">
+                  <tr>
+                    {['קריטריון', 'מתחיל', 'מתפתח', 'מיומן'].map((h) => (
+                      <th key={h} className="px-3 py-2 text-right font-medium text-slate-300">
+                        {h}
+                      </th>
+                    ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-      )}
+                </thead>
+                <tbody>
+                  {brief.rubric.map((row, i) => (
+                    <tr key={i} className="border-b border-slate-800 last:border-0">
+                      <td className="px-3 py-2 font-medium text-white align-top">{row.criterion}</td>
+                      <td className="px-3 py-2 text-slate-400 align-top">{row.beginning}</td>
+                      <td className="px-3 py-2 text-slate-400 align-top">{row.developing}</td>
+                      <td className="px-3 py-2 text-slate-400 align-top">{row.proficient}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
 
-      {/* Differentiation */}
-      {(brief.differentiation.support || brief.differentiation.extension) && (
-        <section className="pt-6 border-t border-slate-800">
-          <h4 className="text-sm font-semibold text-slate-300 mb-3">דיפרנציאציה</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {brief.differentiation.support && (
-              <div className="p-3 rounded-lg border border-blue-700/40 bg-blue-900/20">
-                <p className="text-xs font-semibold text-blue-400 mb-1">תמיכה</p>
-                <p className="text-sm text-blue-200 leading-relaxed">{brief.differentiation.support}</p>
-              </div>
-            )}
-            {brief.differentiation.extension && (
-              <div className="p-3 rounded-lg border border-emerald-700/40 bg-emerald-900/20">
-                <p className="text-xs font-semibold text-emerald-400 mb-1">הרחבה</p>
-                <p className="text-sm text-emerald-200 leading-relaxed">{brief.differentiation.extension}</p>
-              </div>
-            )}
-          </div>
-        </section>
-      )}
-
-      {/* Opening experience */}
-      {brief.opening_experience && (
-        <section className="pt-6 border-t border-slate-800">
-          <h4 className="text-sm font-semibold text-slate-300 mb-3">חוויית פתיחה</h4>
-          <div className="p-4 rounded-xl border border-amber-700/30 bg-amber-900/20">
-            <p className="text-sm text-amber-200 leading-relaxed">{brief.opening_experience}</p>
-          </div>
-        </section>
-      )}
+        {brief.opening_experience && (
+          <section className="pt-6 border-t border-slate-800">
+            <h4 className="text-sm font-semibold text-slate-300 mb-3">חוויית פתיחה</h4>
+            <div className="p-4 rounded-xl border border-amber-700/30 bg-amber-900/20">
+              <p className="text-sm text-amber-200 leading-relaxed">{brief.opening_experience}</p>
+            </div>
+          </section>
+        )}
+      </div>
     </div>
   )
 }
@@ -1424,7 +1379,7 @@ export default function HomePage() {
         )}
 
         {/* Brief */}
-        {mode === 'brief' && projectBrief && (
+        {mode === 'brief' && projectBrief && selectedQuestion && (
           <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6 md:p-8">
             <div className="pb-4 border-b border-slate-800 mb-6 flex items-center justify-between no-print">
               <h2 className="text-lg font-bold text-white">תיק פרויקט</h2>
@@ -1437,7 +1392,7 @@ export default function HomePage() {
                 הדפסה
               </button>
             </div>
-            <BriefScreen brief={projectBrief} />
+            <BriefScreen brief={projectBrief} selectedQuestion={selectedQuestion} />
           </div>
         )}
       </div>
