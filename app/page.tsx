@@ -903,15 +903,19 @@ export default function HomePage() {
       const archiveId = archiveIds[idx]
       if (archiveId) {
         try {
-          await fetch(`/api/archive/${archiveId}`, {
+          const patchRes = await fetch(`/api/archive/${archiveId}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ brief_data: JSON.stringify(brief) }),
           })
-          setArchiveQuestions(prev =>
-            prev.map(a => a.id === archiveId ? { ...a, brief_data: JSON.stringify(brief) } : a)
-          )
-        } catch { /* non-fatal */ }
+          if (patchRes.ok) {
+            setArchiveQuestions(prev =>
+              prev.map(a => a.id === archiveId ? { ...a, brief_data: JSON.stringify(brief) } : a)
+            )
+          } else {
+            console.warn('[brief] failed to cache brief in archive:', patchRes.status)
+          }
+        } catch (e) { console.warn('[brief] patch error:', e) }
       }
       setProjectBrief(brief)
       setMockMode(m)
@@ -959,13 +963,17 @@ export default function HomePage() {
       const { brief, mockMode: m } = await createProjectBrief({ selectedQuestion: fullData, originalInput: minimalInput })
       // cache result in DB (non-fatal)
       try {
-        await fetch(`/api/archive/${item.id}`, {
+        const patchRes = await fetch(`/api/archive/${item.id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ brief_data: JSON.stringify(brief) }),
         })
-        setArchiveQuestions((prev) => prev.map((a) => a.id === item.id ? { ...a, brief_data: JSON.stringify(brief) } : a))
-      } catch { /* non-fatal */ }
+        if (patchRes.ok) {
+          setArchiveQuestions((prev) => prev.map((a) => a.id === item.id ? { ...a, brief_data: JSON.stringify(brief) } : a))
+        } else {
+          console.warn('[archive] failed to cache brief:', patchRes.status)
+        }
+      } catch (e) { console.warn('[archive] patch error:', e) }
       setProjectBrief(brief)
       setSelectedQuestion(fullData)
       setFormInput(minimalInput)
