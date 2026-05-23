@@ -67,7 +67,7 @@ const errorCls = 'text-rose-400 text-xs mt-1'
 // ─── Props ────────────────────────────────────────────────────────────────────
 
 interface Props {
-  onSuccess: (questions: BigQuestion[], mockMode: boolean, input: FormInput) => void
+  onSuccess: (questions: BigQuestion[], mockMode: boolean, input: FormInput, archiveIds: string[]) => void
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -191,10 +191,10 @@ export default function GenerateForm({ onSuccess }: Props) {
     setSubmitError(null)
     setLoadingMsgIdx(0)
     try {
-      const { questions, mockMode } = await createQuestions(form)
+      const { questions, archiveIds, mockMode } = await createQuestions(form)
       setProgress(100)
       try { localStorage.removeItem(LS_KEY) } catch { /* ignore */ }
-      onSuccess(questions, mockMode, form)
+      onSuccess(questions, mockMode, form, archiveIds)
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : 'שגיאה לא ידועה')
     } finally {

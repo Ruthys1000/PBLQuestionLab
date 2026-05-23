@@ -804,6 +804,7 @@ export default function HomePage() {
   const [formInput, setFormInput] = useState<FormInput | null>(null)
   const [diagnoseInput, setDiagnoseInput] = useState<DiagnoseInput | null>(null)
   const [questions, setQuestions] = useState<BigQuestion[]>([])
+  const [archiveIds, setArchiveIds] = useState<string[]>([])
   const [diagnosis, setDiagnosis] = useState<DiagnosisResult | null>(null)
   const [selectedQuestion, setSelectedQuestion] = useState<BigQuestion | null>(null)
   const [projectBrief, setProjectBrief] = useState<ProjectBrief | null>(null)
@@ -897,6 +898,21 @@ export default function HomePage() {
     setBriefError(null)
     try {
       const { brief, mockMode: m } = await createProjectBrief({ selectedQuestion, originalInput })
+      // cache brief in archive entry (non-fatal)
+      const idx = questions.findIndex(q => q === selectedQuestion)
+      const archiveId = archiveIds[idx]
+      if (archiveId) {
+        try {
+          await fetch(`/api/archive/${archiveId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ brief_data: JSON.stringify(brief) }),
+          })
+          setArchiveQuestions(prev =>
+            prev.map(a => a.id === archiveId ? { ...a, brief_data: JSON.stringify(brief) } : a)
+          )
+        } catch { /* non-fatal */ }
+      }
       setProjectBrief(brief)
       setMockMode(m)
       setMode('brief')
@@ -993,8 +1009,9 @@ export default function HomePage() {
     setRegenerateError(null)
     setSelectedQuestion(null)
     try {
-      const { questions: qs, mockMode: m } = await createQuestions(formInput)
+      const { questions: qs, archiveIds: ids, mockMode: m } = await createQuestions(formInput)
       setQuestions(qs)
+      setArchiveIds(ids)
       setMockMode(m)
       if (qs[0]) setSelectedQuestion(qs[0])
       showToast('שאלה חדשה נוצרה!', 'info')
@@ -1512,8 +1529,9 @@ export default function HomePage() {
         {mode === 'generate' && (
           <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6 md:p-8">
             <GenerateForm
-              onSuccess={(qs, mock, input) => {
+              onSuccess={(qs, mock, input, ids) => {
                 setQuestions(qs)
+                setArchiveIds(ids)
                 setFormInput(input)
                 setMockMode(mock)
                 if (qs[0]) setSelectedQuestion(qs[0])

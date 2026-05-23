@@ -59,7 +59,7 @@ async function postJSON<T>(url: string, body: unknown): Promise<T> {
 
 export async function createQuestions(
   input: FormInput
-): Promise<{ questions: BigQuestion[]; mockMode: boolean }> {
+): Promise<{ questions: BigQuestion[]; archiveIds: string[]; mockMode: boolean }> {
   return postJSON('/api/generate', input)
 }
 
