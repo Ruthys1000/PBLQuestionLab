@@ -826,6 +826,8 @@ export default function HomePage() {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' } | null>(null)
   const [archiveQuestions, setArchiveQuestions] = useState<ArchiveItem[]>([])
   const [archiveLoading, setArchiveLoading] = useState(false)
+  const [archiveSearch, setArchiveSearch] = useState('')
+  const [archiveSort, setArchiveSort] = useState<'date_desc' | 'date_asc' | 'score_desc' | 'score_asc'>('date_desc')
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [deletePin, setDeletePin] = useState('')
   const [deleteError, setDeleteError] = useState<string | null>(null)
@@ -1154,6 +1156,27 @@ export default function HomePage() {
   // ── Archive ─────────────────────────────────────────────────────────────────
 
   if (mode === 'archive') {
+    const filteredArchive = archiveQuestions
+      .filter(item => {
+        if (!archiveSearch.trim()) return true
+        const q = archiveSearch.trim().toLowerCase()
+        const subjectsStr = (() => { try { return (JSON.parse(item.subjects) as string[]).join(' ') } catch { return item.subjects } })()
+        return (
+          item.topic.toLowerCase().includes(q) ||
+          item.grade.toLowerCase().includes(q) ||
+          subjectsStr.toLowerCase().includes(q) ||
+          item.question.toLowerCase().includes(q)
+        )
+      })
+      .sort((a, b) => {
+        switch (archiveSort) {
+          case 'date_asc':   return new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+          case 'score_desc': return b.overall_score - a.overall_score
+          case 'score_asc':  return a.overall_score - b.overall_score
+          default:           return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        }
+      })
+
     return (
       <main className="min-h-screen bg-slate-950 flex flex-col items-center px-6 py-12">
         <div className="w-full max-w-4xl space-y-8">
@@ -1178,6 +1201,44 @@ export default function HomePage() {
             <p className="text-slate-400 text-sm">כל השאלות שנוצרו בכלי</p>
           </div>
 
+          {!archiveLoading && archiveQuestions.length > 0 && (
+            <div className="space-y-3">
+              <div className="relative">
+                <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" strokeWidth={1.5} />
+                <input
+                  type="text"
+                  value={archiveSearch}
+                  onChange={e => setArchiveSearch(e.target.value)}
+                  placeholder="חיפוש לפי נושא, כיתה, תחום או תוכן השאלה..."
+                  className="w-full bg-slate-900 border border-slate-800 rounded-xl pr-9 pl-4 py-2.5 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500/50 transition-colors"
+                  dir="rtl"
+                />
+              </div>
+              <div className="flex flex-wrap gap-2 items-center">
+                <span className="text-xs text-slate-500">מיון:</span>
+                {([ ['date_desc', 'תאריך ↓'], ['date_asc', 'תאריך ↑'], ['score_desc', 'ציון ↓'], ['score_asc', 'ציון ↑'] ] as const).map(([val, label]) => (
+                  <button
+                    key={val}
+                    type="button"
+                    onClick={() => setArchiveSort(val)}
+                    className={`px-3 py-1 rounded-lg text-xs font-medium border transition-colors ${
+                      archiveSort === val
+                        ? 'border-violet-500/60 bg-violet-500/10 text-violet-300'
+                        : 'border-slate-700 bg-slate-900 text-slate-400 hover:text-white hover:border-slate-600'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+                {archiveSearch && (
+                  <span className="text-xs text-slate-500 mr-auto">
+                    {filteredArchive.length} מתוך {archiveQuestions.length} שאלות
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+
           {archiveLoading && (
             <div className="flex justify-center py-16">
               <Loader2 className="w-8 h-8 text-violet-400 animate-spin" strokeWidth={1.5} />
@@ -1191,9 +1252,16 @@ export default function HomePage() {
             </div>
           )}
 
-          {!archiveLoading && archiveQuestions.length > 0 && (
+          {!archiveLoading && archiveQuestions.length > 0 && filteredArchive.length === 0 && (
+            <div className="text-center py-16 space-y-3">
+              <p className="text-slate-500 text-lg">לא נמצאו שאלות התואמות לחיפוש</p>
+              <p className="text-slate-600 text-sm">נסה מילת חיפוש אחרת</p>
+            </div>
+          )}
+
+          {!archiveLoading && filteredArchive.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {archiveQuestions.map((item) => {
+              {filteredArchive.map((item) => {
                 const scoreColor =
                   item.overall_score >= 8 ? 'text-emerald-400 bg-emerald-900/40'
                   : item.overall_score >= 5 ? 'text-amber-400 bg-amber-900/40'
