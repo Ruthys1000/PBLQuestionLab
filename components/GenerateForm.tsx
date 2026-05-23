@@ -234,6 +234,7 @@ export default function GenerateForm({ onSuccess }: Props) {
             />
           </div>
           <p className="text-xs text-slate-400 text-center">{LOADING_MESSAGES[loadingMsgIdx]}</p>
+          <p className="text-xs text-slate-600 text-center">זמן הכנה צפוי: 20–45 שניות</p>
         </div>
       </div>
     )
@@ -394,7 +395,7 @@ export default function GenerateForm({ onSuccess }: Props) {
           id="learning_goals"
           rows={2}
           className={inputCls + ' resize-none'}
-          placeholder="מה התלמידים אמורים להבין, לדעת או לעשות בסוף הפרויקט?"
+          placeholder="לדוגמה: יבינו כיצד שינוי אקלים משפיע על מערכות אקולוגיות מקומיות"
           value={form.learning_goals}
           onChange={(e) => set('learning_goals', e.target.value)}
           disabled={loading}
@@ -412,7 +413,7 @@ export default function GenerateForm({ onSuccess }: Props) {
           id="required_content"
           rows={2}
           className={inputCls + ' resize-none'}
-          placeholder="רשמי מושגים, נושאים מהתוכנית, חוקים, תהליכים וכו'..."
+          placeholder="לדוגמה: מחזור המים, פוטוסינתזה, שרשראות מזון, פירמידת מזון"
           value={form.required_content}
           onChange={(e) => set('required_content', e.target.value)}
           disabled={loading}

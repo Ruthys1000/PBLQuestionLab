@@ -12,7 +12,6 @@ import {
   Loader2,
   BookOpen,
   RefreshCw,
-  Copy,
   Check,
   Printer,
   AlertTriangle,
@@ -142,30 +141,6 @@ function StressTestPanel({ stressTest }: { stressTest: StressTest }) {
 
 // ─── Copy button ──────────────────────────────────────────────────────────────
 
-function CopyButton({ text, label = 'העתק' }: { text: string; label?: string }) {
-  const [copied, setCopied] = useState(false)
-
-  async function handleCopy() {
-    await navigator.clipboard.writeText(text)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
-
-  return (
-    <button
-      type="button"
-      onClick={() => void handleCopy()}
-      title={label}
-      aria-label={label}
-      className="shrink-0 p-1.5 rounded-lg text-slate-500 hover:text-violet-400 hover:bg-slate-700/50 transition-colors"
-    >
-      {copied
-        ? <Check className="w-4 h-4 text-emerald-400" strokeWidth={1.5} />
-        : <Copy className="w-4 h-4" strokeWidth={1.5} />
-      }
-    </button>
-  )
-}
 
 // ─── Step indicator ──────────────────────────────────────────────────────────
 
@@ -268,19 +243,14 @@ function ResultsScreen({
             >
               <div className="flex items-start justify-between gap-3">
                 <p className="text-sm font-medium text-slate-100 leading-relaxed">{q.question}</p>
-                <div className="flex items-center gap-1.5 shrink-0">
-                  <span className={
-                    'text-xs font-semibold rounded-full px-2 py-0.5 ' +
-                    (selected
-                      ? 'bg-violet-500/20 text-violet-300'
-                      : 'bg-slate-700 text-slate-400')
-                  }>
-                    {q.stress_test.overall_score.toFixed(1)}
-                  </span>
-                  <div onClick={(e) => e.stopPropagation()}>
-                    <CopyButton text={q.question} label="העתק שאלה" />
-                  </div>
-                </div>
+                <span className={
+                  'text-xs font-semibold rounded-full px-2 py-0.5 shrink-0 ' +
+                  (selected
+                    ? 'bg-violet-500/20 text-violet-300'
+                    : 'bg-slate-700 text-slate-400')
+                }>
+                  {q.stress_test.overall_score.toFixed(1)}
+                </span>
               </div>
             </button>
 
@@ -560,10 +530,7 @@ function DiagnosisScreen({ diagnosis }: { diagnosis: DiagnosisResult }) {
           <div className="space-y-3">
             {diagnosis.alternative_formulations.map((alt, i) => (
               <div key={i} className="p-4 rounded-xl border border-slate-700 bg-slate-800 space-y-1">
-                <div className="flex items-start gap-2">
-                  <p className="text-sm font-medium text-white flex-1">{alt.question}</p>
-                  <CopyButton text={alt.question} label="העתק ניסוח" />
-                </div>
+                <p className="text-sm font-medium text-white">{alt.question}</p>
                 <p className="text-sm text-slate-400">{alt.explanation}</p>
               </div>
             ))}
@@ -587,15 +554,40 @@ function BriefScreen({ brief, selectedQuestion }: { brief: ProjectBrief; selecte
       <div className="space-y-4">
         <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest">השאלה המנחה</p>
         <div className="p-4 rounded-xl bg-violet-500/10 border border-violet-500/30">
-          <div className="flex items-start gap-2">
-            <p className="text-sm font-medium text-violet-200 leading-relaxed flex-1">
-              {selectedQuestion.question}
-            </p>
-            <CopyButton text={selectedQuestion.question} label="העתק שאלה מנחה" />
-          </div>
+          <p className="text-sm font-medium text-violet-200 leading-relaxed">
+            {selectedQuestion.question}
+          </p>
         </div>
         {selectedQuestion.why_it_works && (
           <p className="text-sm text-slate-400 leading-relaxed">{selectedQuestion.why_it_works}</p>
+        )}
+        {(selectedQuestion.strengths.length > 0 || selectedQuestion.weaknesses.length > 0) && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+            {selectedQuestion.strengths.length > 0 && (
+              <div>
+                <p className="text-xs font-semibold text-emerald-400 mb-1.5">חוזקות</p>
+                <ul className="space-y-1">
+                  {selectedQuestion.strengths.map((s, i) => (
+                    <li key={i} className="text-sm text-slate-300 flex gap-1.5">
+                      <span className="text-emerald-500 shrink-0">✓</span>{s}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {selectedQuestion.weaknesses.length > 0 && (
+              <div>
+                <p className="text-xs font-semibold text-rose-400 mb-1.5">נקודות לשיפור</p>
+                <ul className="space-y-1">
+                  {selectedQuestion.weaknesses.map((w, i) => (
+                    <li key={i} className="text-sm text-slate-300 flex gap-1.5">
+                      <span className="text-rose-500 shrink-0">✗</span>{w}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
         )}
       </div>
 
@@ -960,7 +952,7 @@ export default function HomePage() {
 
   if (mode === 'home') {
     return (
-      <main className="min-h-screen bg-slate-950 flex flex-col items-center px-6 py-16">
+      <main id="main-content" className="min-h-screen bg-slate-950 flex flex-col items-center px-6 py-16">
         <div className="w-full max-w-4xl space-y-14">
 
           {/* Hero */}
