@@ -21,6 +21,7 @@ export async function GET() {
         question: true,
         overall_score: true,
         full_data: true,
+        brief_data: true,
         created_at: true,
       },
     })
