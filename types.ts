@@ -47,6 +47,7 @@ export interface ProjectBrief {
   project_title: string
   teacher_summary: string
   learning_goals: string[]
+  knowledge_content: string[]
   sub_questions: string[]
   inquiry_stages: string[]
   rubric: RubricRow[]

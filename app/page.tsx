@@ -637,6 +637,20 @@ function BriefScreen({ brief, selectedQuestion }: { brief: ProjectBrief; selecte
           </section>
         )}
 
+        {brief.knowledge_content.length > 0 && (
+          <section className="pt-6 border-t border-slate-800">
+            <h4 className="text-sm font-semibold text-slate-300 mb-3">תכנים ומושגי מפתח</h4>
+            <ul className="space-y-1.5">
+              {brief.knowledge_content.map((k, i) => (
+                <li key={i} className="text-sm text-slate-300 flex gap-2">
+                  <span className="text-violet-400 shrink-0">•</span>
+                  {k}
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
         {brief.sub_questions.length > 0 && (
           <section className="pt-6 border-t border-slate-800">
             <h4 className="text-sm font-semibold text-slate-300 mb-3">שאלות משנה</h4>
