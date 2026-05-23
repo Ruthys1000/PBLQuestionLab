@@ -86,6 +86,7 @@ export interface ArchiveItem {
   question: string
   overall_score: number
   full_data?: string
+  brief_data?: string | null
   created_at: string
 }
 
