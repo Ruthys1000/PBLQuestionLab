@@ -86,6 +86,7 @@ export default function GenerateForm({ onSuccess }: Props) {
   })
   const [errors, setErrors] = useState<Partial<Record<keyof FormInput, string>>>({})
   const [touched, setTouched] = useState<Partial<Record<keyof FormInput, boolean>>>({})
+  const [submitAttempted, setSubmitAttempted] = useState(false)
   const [loading, setLoading] = useState(false)
   const [loadingMsgIdx, setLoadingMsgIdx] = useState(0)
   const [submitError, setSubmitError] = useState<string | null>(null)
@@ -203,6 +204,7 @@ export default function GenerateForm({ onSuccess }: Props) {
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
+    setSubmitAttempted(true)
     if (!validate()) return
     void doSubmit()
   }
@@ -456,6 +458,11 @@ export default function GenerateForm({ onSuccess }: Props) {
 
       {/* ── Submit ── */}
       <div className="pt-2 space-y-3">
+        {submitAttempted && Object.keys(errors).length > 0 && (
+          <p className="text-rose-400 text-sm text-center">
+            יש שדות חובה שלא מולאו — בדוק את השדות המסומנים למעלה
+          </p>
+        )}
         <button
           type="submit"
           disabled={loading}
