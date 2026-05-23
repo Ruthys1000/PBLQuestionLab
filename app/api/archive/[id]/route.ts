@@ -1,6 +1,6 @@
 import 'server-only'
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/db'
+import { prisma, ensureTable } from '@/lib/db'
 
 export async function PATCH(
   req: NextRequest,
@@ -18,6 +18,7 @@ export async function PATCH(
   }
 
   try {
+    await ensureTable()
     await prisma.archivedQuestion.update({
       where: { id: params.id },
       data: { brief_data: body.brief_data },
