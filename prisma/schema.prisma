@@ -15,5 +15,6 @@ model ArchivedQuestion {
   question      String
   overall_score Float
   full_data     String
+  brief_data    String?
   created_at    DateTime @default(now())
 }

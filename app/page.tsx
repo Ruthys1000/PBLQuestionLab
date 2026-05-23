@@ -910,7 +910,6 @@ export default function HomePage() {
 
   async function handleArchiveBrief(item: ArchiveItem, fullData: BigQuestion) {
     if (archiveBriefLoadingId) return
-    setArchiveBriefLoadingId(item.id)
     const subjects = (() => { try { return JSON.parse(item.subjects) as string[] } catch { return [] } })()
     const minimalInput: FormInput = {
       topic: item.topic,
@@ -924,8 +923,33 @@ export default function HomePage() {
       preferred_product: '',
       boldness: 'balanced',
     }
+
+    // Fast path: brief already cached in DB
+    if (item.brief_data) {
+      try {
+        const brief = JSON.parse(item.brief_data) as ProjectBrief
+        setProjectBrief(brief)
+        setSelectedQuestion(fullData)
+        setFormInput(minimalInput)
+        setMode('brief')
+        showToast('תיק הפרויקט נטען מהארכיון')
+        return
+      } catch { /* fall through to AI */ }
+    }
+
+    // Slow path: generate via AI then cache
+    setArchiveBriefLoadingId(item.id)
     try {
       const { brief, mockMode: m } = await createProjectBrief({ selectedQuestion: fullData, originalInput: minimalInput })
+      // cache result in DB (non-fatal)
+      try {
+        await fetch(`/api/archive/${item.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ brief_data: JSON.stringify(brief) }),
+        })
+        setArchiveQuestions((prev) => prev.map((a) => a.id === item.id ? { ...a, brief_data: JSON.stringify(brief) } : a))
+      } catch { /* non-fatal */ }
       setProjectBrief(brief)
       setSelectedQuestion(fullData)
       setFormInput(minimalInput)
@@ -1365,7 +1389,17 @@ export default function HomePage() {
                           {new Date(item.created_at).toLocaleDateString('he-IL')}
                         </p>
                         {fullData && (
-                          archiveBriefConfirmId === item.id ? (
+                          item.brief_data ? (
+                            <button
+                              type="button"
+                              onClick={() => void handleArchiveBrief(item, fullData)}
+                              disabled={!!archiveBriefLoadingId}
+                              className="w-full inline-flex items-center justify-center gap-1.5 py-1.5 rounded-lg border border-cyan-800/50 bg-cyan-950/30 text-xs text-cyan-400 hover:bg-cyan-900/40 disabled:opacity-40 transition-colors"
+                            >
+                              <BookOpen className="w-3.5 h-3.5" strokeWidth={1.5} />
+                              פתח תיק פרויקט שמור
+                            </button>
+                          ) : archiveBriefConfirmId === item.id ? (
                             <div className="space-y-1.5">
                               <p className="text-xs text-amber-400 text-center">ליצור תיק פרויקט לשאלה זו?</p>
                               <div className="flex gap-2">
