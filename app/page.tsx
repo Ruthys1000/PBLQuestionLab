@@ -820,6 +820,7 @@ export default function HomePage() {
   const [archiveLoading, setArchiveLoading] = useState(false)
   const [archiveSearch, setArchiveSearch] = useState('')
   const [archiveSort, setArchiveSort] = useState<'date_desc' | 'date_asc' | 'score_desc' | 'score_asc'>('date_desc')
+  const [archiveBriefLoadingId, setArchiveBriefLoadingId] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [deletePin, setDeletePin] = useState('')
   const [deleteError, setDeleteError] = useState<string | null>(null)
@@ -903,6 +904,37 @@ export default function HomePage() {
       setBriefError(err instanceof Error ? err.message : 'שגיאה ביצירת תיק פרויקט')
     } finally {
       setBriefLoading(false)
+    }
+  }
+
+  async function handleArchiveBrief(item: ArchiveItem, fullData: BigQuestion) {
+    if (archiveBriefLoadingId) return
+    setArchiveBriefLoadingId(item.id)
+    const subjects = (() => { try { return JSON.parse(item.subjects) as string[] } catch { return [] } })()
+    const minimalInput: FormInput = {
+      topic: item.topic,
+      grade: item.grade,
+      subjects,
+      learning_goals: '',
+      required_content: '',
+      duration: 'שבועיים עד שלושה שבועות',
+      context: '',
+      difficulty: 'intermediate',
+      preferred_product: '',
+      boldness: 'balanced',
+    }
+    try {
+      const { brief, mockMode: m } = await createProjectBrief({ selectedQuestion: fullData, originalInput: minimalInput })
+      setProjectBrief(brief)
+      setSelectedQuestion(fullData)
+      setFormInput(minimalInput)
+      setMockMode(m)
+      setMode('brief')
+      showToast('תיק הפרויקט נוצר בהצלחה!')
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : 'שגיאה ביצירת תיק פרויקט', 'info')
+    } finally {
+      setArchiveBriefLoadingId(null)
     }
   }
 
@@ -1331,6 +1363,20 @@ export default function HomePage() {
                         <p className="text-xs text-slate-600">
                           {new Date(item.created_at).toLocaleDateString('he-IL')}
                         </p>
+                        {fullData && (
+                          <button
+                            type="button"
+                            onClick={() => void handleArchiveBrief(item, fullData)}
+                            disabled={!!archiveBriefLoadingId}
+                            className="w-full inline-flex items-center justify-center gap-1.5 py-1.5 rounded-lg border border-slate-700 bg-slate-800/50 text-xs text-slate-400 hover:text-violet-300 hover:border-violet-500/40 disabled:opacity-40 transition-colors"
+                          >
+                            {archiveBriefLoadingId === item.id
+                              ? <Loader2 className="w-3.5 h-3.5 animate-spin" strokeWidth={1.5} />
+                              : <BookOpen className="w-3.5 h-3.5" strokeWidth={1.5} />
+                            }
+                            {archiveBriefLoadingId === item.id ? 'יוצר תיק פרויקט...' : 'צור תיק פרויקט'}
+                          </button>
+                        )}
                       </>
                     )}
                   </div>
