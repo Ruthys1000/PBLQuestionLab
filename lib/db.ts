@@ -37,6 +37,9 @@ export async function ensureTable(): Promise<void> {
         CONSTRAINT "ArchivedQuestion_pkey" PRIMARY KEY ("id")
       )
     `
+    await prisma.$executeRaw`
+      ALTER TABLE "ArchivedQuestion" ADD COLUMN IF NOT EXISTS "brief_data" TEXT
+    `
     globalForPrisma.tableReady = true
   } catch (err) {
     console.error('[ensureTable] DB error:', err)
