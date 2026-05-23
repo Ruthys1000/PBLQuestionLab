@@ -229,6 +229,8 @@ function ResultsScreen({
   onGenerateAgain,
   regenerateLoading,
   regenerateError,
+  hasBrief,
+  onGoToBrief,
 }: {
   questions: BigQuestion[]
   selectedQuestion: BigQuestion | null
@@ -241,6 +243,8 @@ function ResultsScreen({
   onGenerateAgain: () => void
   regenerateLoading: boolean
   regenerateError: string | null
+  hasBrief: boolean
+  onGoToBrief: () => void
 }) {
   if (!questions.length) return null
 
@@ -431,6 +435,18 @@ function ResultsScreen({
             <p className="text-xs text-violet-400 font-semibold mb-1">השאלה שתיבנה עליה תיק הפרויקט:</p>
             <p className="text-sm text-slate-100 leading-relaxed">{selectedQuestion.question}</p>
           </div>
+
+          {hasBrief && (
+            <button
+              type="button"
+              onClick={onGoToBrief}
+              className="w-full inline-flex items-center justify-center gap-2 py-3.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-base font-medium shadow-lg shadow-violet-500/25 transition-all duration-150"
+            >
+              <BookOpen className="w-5 h-5" strokeWidth={1.5} />
+              חזור לתיק הפרויקט
+            </button>
+          )}
+
           <button
             type="button"
             onClick={onGenerateBrief}
@@ -439,7 +455,9 @@ function ResultsScreen({
               'w-full inline-flex items-center justify-center gap-2 py-3 rounded-xl text-base font-medium transition-all duration-150 ' +
               (briefLoading
                 ? 'bg-slate-700 text-slate-400 cursor-not-allowed'
-                : 'bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-lg shadow-violet-500/25')
+                : hasBrief
+                  ? 'border border-slate-700 bg-slate-800/50 text-slate-300 hover:border-slate-500 hover:text-white'
+                  : 'bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-lg shadow-violet-500/25')
             }
           >
             {briefLoading ? (
@@ -450,7 +468,7 @@ function ResultsScreen({
             ) : (
               <>
                 <BookOpen className="w-5 h-5" strokeWidth={1.5} />
-                צור תיק פרויקט לשאלה זו
+                {hasBrief ? 'צור תיק חדש לשאלה זו' : 'צור תיק פרויקט לשאלה זו'}
               </>
             )}
           </button>
@@ -707,6 +725,17 @@ function BriefScreen({ brief, selectedQuestion }: { brief: ProjectBrief; selecte
             </div>
           </section>
         )}
+
+        <div className="pt-8 border-t border-slate-800 no-print">
+          <button
+            type="button"
+            onClick={() => window.print()}
+            className="w-full inline-flex items-center justify-center gap-2 py-3.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-medium transition-all shadow-lg shadow-violet-500/20"
+          >
+            <Printer className="w-5 h-5" strokeWidth={1.5} />
+            הדפסה / שיתוף
+          </button>
+        </div>
       </div>
     </div>
   )
@@ -1351,6 +1380,8 @@ export default function HomePage() {
                 onGenerateAgain={() => void handleGenerateAgain()}
                 regenerateLoading={regenerateLoading}
                 regenerateError={regenerateError}
+                hasBrief={projectBrief !== null}
+                onGoToBrief={() => setMode('brief')}
               />
             ) : (
               <div className="text-center py-8 space-y-3">
@@ -1386,10 +1417,10 @@ export default function HomePage() {
               <button
                 type="button"
                 onClick={() => window.print()}
-                className="inline-flex items-center gap-1.5 text-sm text-slate-400 hover:text-white transition-colors px-3 py-1.5 rounded-lg border border-slate-700 hover:border-slate-500"
+                className="inline-flex items-center gap-1.5 text-sm font-medium text-violet-300 hover:text-white bg-violet-900/30 hover:bg-violet-900/60 border border-violet-700/50 px-3 py-1.5 rounded-lg transition-all"
               >
                 <Printer className="w-4 h-4" strokeWidth={1.5} />
-                הדפסה
+                הדפסה / שיתוף
               </button>
             </div>
             <BriefScreen brief={projectBrief} selectedQuestion={selectedQuestion} />
