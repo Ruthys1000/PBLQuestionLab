@@ -821,6 +821,7 @@ export default function HomePage() {
   const [archiveSearch, setArchiveSearch] = useState('')
   const [archiveSort, setArchiveSort] = useState<'date_desc' | 'date_asc' | 'score_desc' | 'score_asc'>('date_desc')
   const [archiveBriefLoadingId, setArchiveBriefLoadingId] = useState<string | null>(null)
+  const [archiveBriefConfirmId, setArchiveBriefConfirmId] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [deletePin, setDeletePin] = useState('')
   const [deleteError, setDeleteError] = useState<string | null>(null)
@@ -1314,7 +1315,7 @@ export default function HomePage() {
                         </span>
                         <button
                           type="button"
-                          onClick={() => { setDeletingId(item.id); setDeletePin(''); setDeleteError(null) }}
+                          onClick={() => { setDeletingId(item.id); setDeletePin(''); setDeleteError(null); setArchiveBriefConfirmId(null) }}
                           className="p-1 rounded text-slate-600 hover:text-rose-400 transition-colors"
                           aria-label="מחק שאלה"
                         >
@@ -1364,18 +1365,41 @@ export default function HomePage() {
                           {new Date(item.created_at).toLocaleDateString('he-IL')}
                         </p>
                         {fullData && (
-                          <button
-                            type="button"
-                            onClick={() => void handleArchiveBrief(item, fullData)}
-                            disabled={!!archiveBriefLoadingId}
-                            className="w-full inline-flex items-center justify-center gap-1.5 py-1.5 rounded-lg border border-slate-700 bg-slate-800/50 text-xs text-slate-400 hover:text-violet-300 hover:border-violet-500/40 disabled:opacity-40 transition-colors"
-                          >
-                            {archiveBriefLoadingId === item.id
-                              ? <Loader2 className="w-3.5 h-3.5 animate-spin" strokeWidth={1.5} />
-                              : <BookOpen className="w-3.5 h-3.5" strokeWidth={1.5} />
-                            }
-                            {archiveBriefLoadingId === item.id ? 'יוצר תיק פרויקט...' : 'צור תיק פרויקט'}
-                          </button>
+                          archiveBriefConfirmId === item.id ? (
+                            <div className="space-y-1.5">
+                              <p className="text-xs text-amber-400 text-center">יצירת התיק תצרוך טוקנים. להמשיך?</p>
+                              <div className="flex gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => { setArchiveBriefConfirmId(null); void handleArchiveBrief(item, fullData) }}
+                                  disabled={!!archiveBriefLoadingId}
+                                  className="flex-1 py-1.5 rounded-lg bg-violet-900/40 border border-violet-700/50 text-violet-300 text-xs font-medium hover:bg-violet-900/70 disabled:opacity-40 transition-colors"
+                                >
+                                  {archiveBriefLoadingId === item.id
+                                    ? <Loader2 className="w-3.5 h-3.5 animate-spin mx-auto" strokeWidth={1.5} />
+                                    : 'כן, צור תיק'
+                                  }
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setArchiveBriefConfirmId(null)}
+                                  className="flex-1 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-slate-400 text-xs font-medium hover:text-white transition-colors"
+                                >
+                                  ביטול
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => setArchiveBriefConfirmId(item.id)}
+                              disabled={!!archiveBriefLoadingId}
+                              className="w-full inline-flex items-center justify-center gap-1.5 py-1.5 rounded-lg border border-slate-700 bg-slate-800/50 text-xs text-slate-400 hover:text-violet-300 hover:border-violet-500/40 disabled:opacity-40 transition-colors"
+                            >
+                              <BookOpen className="w-3.5 h-3.5" strokeWidth={1.5} />
+                              צור תיק פרויקט
+                            </button>
+                          )
                         )}
                       </>
                     )}
