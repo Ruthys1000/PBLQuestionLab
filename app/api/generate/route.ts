@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import type { FormInput } from '@/types'
 import { generateQuestions } from '@/lib/anthropic'
 import { prisma, ensureTable } from '@/lib/db'
+import { checkDailyLimit, DAILY_LIMIT } from '@/lib/dailyLimit'
 
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>()
 
@@ -17,20 +18,6 @@ function checkRateLimit(ip: string): boolean {
   return true
 }
 
-const dailyLimitMap = new Map<string, { count: number; date: string }>()
-const DAILY_LIMIT = 5
-
-function checkDailyLimit(ip: string): boolean {
-  const today = new Date().toISOString().slice(0, 10)
-  const entry = dailyLimitMap.get(ip)
-  if (!entry || entry.date !== today) {
-    dailyLimitMap.set(ip, { count: 1, date: today })
-    return true
-  }
-  if (entry.count >= DAILY_LIMIT) return false
-  entry.count++
-  return true
-}
 
 export async function POST(req: NextRequest) {
   const ip = req.headers.get('x-forwarded-for') ?? '127.0.0.1'
@@ -38,7 +25,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'יותר מדי בקשות — נסה שוב בעוד דקה' }, { status: 429 })
   }
   if (!checkDailyLimit(ip)) {
-    return NextResponse.json({ error: `הגעת למגבלת ${DAILY_LIMIT} הבקשות היומיות — נסה שוב מחר` }, { status: 429 })
+    return NextResponse.json({ error: `הגעת למגבלת ${DAILY_LIMIT} הפעולות היומיות — נסה שוב מחר` }, { status: 429 })
   }
 
   let input: FormInput

@@ -1367,7 +1367,7 @@ export default function HomePage() {
                         {fullData && (
                           archiveBriefConfirmId === item.id ? (
                             <div className="space-y-1.5">
-                              <p className="text-xs text-amber-400 text-center">יצירת התיק תצרוך טוקנים. להמשיך?</p>
+                              <p className="text-xs text-amber-400 text-center">ליצור תיק פרויקט לשאלה זו?</p>
                               <div className="flex gap-2">
                                 <button
                                   type="button"
@@ -1400,7 +1400,7 @@ export default function HomePage() {
                                 <BookOpen className="w-3.5 h-3.5" strokeWidth={1.5} />
                                 צור תיק פרויקט
                               </button>
-                              <p className="text-xs text-slate-600 text-center">עד 5 תיקים ביום</p>
+                              <p className="text-xs text-slate-600 text-center">עד 10 פעולות ביום (משותף)</p>
                             </div>
                           )
                         )}
