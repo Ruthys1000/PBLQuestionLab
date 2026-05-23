@@ -219,6 +219,7 @@ export default function DiagnoseForm({ onSuccess }: Props) {
             />
           </div>
           <p className="text-xs text-slate-400 text-center">{LOADING_MESSAGES[loadingMsgIdx]}</p>
+          <p className="text-xs text-slate-600 text-center">זמן הכנה צפוי: 20–45 שניות</p>
         </div>
       </div>
     )

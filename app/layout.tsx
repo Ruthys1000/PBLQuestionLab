@@ -21,7 +21,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="he" dir="rtl" className={heebo.variable}>
-      <body className={`${heebo.className} bg-slate-950 text-white antialiased`}>{children}</body>
+      <body className={`${heebo.className} bg-slate-950 text-white antialiased`}>
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:right-4 focus:z-50 focus:px-4 focus:py-2 focus:rounded-lg focus:bg-violet-600 focus:text-white focus:text-sm"
+        >
+          דלג לתוכן הראשי
+        </a>
+        {children}
+      </body>
     </html>
   )
 }
