@@ -1367,7 +1367,7 @@ export default function HomePage() {
                         {fullData && (
                           archiveBriefConfirmId === item.id ? (
                             <div className="space-y-1.5">
-                              <p className="text-xs text-amber-400 text-center">יצירת התיק תצרוך טוקנים. להמשיך?</p>
+                              <p className="text-xs text-amber-400 text-center">ליצור תיק פרויקט לשאלה זו?</p>
                               <div className="flex gap-2">
                                 <button
                                   type="button"
@@ -1390,15 +1390,18 @@ export default function HomePage() {
                               </div>
                             </div>
                           ) : (
-                            <button
-                              type="button"
-                              onClick={() => setArchiveBriefConfirmId(item.id)}
-                              disabled={!!archiveBriefLoadingId}
-                              className="w-full inline-flex items-center justify-center gap-1.5 py-1.5 rounded-lg border border-slate-700 bg-slate-800/50 text-xs text-slate-400 hover:text-violet-300 hover:border-violet-500/40 disabled:opacity-40 transition-colors"
-                            >
-                              <BookOpen className="w-3.5 h-3.5" strokeWidth={1.5} />
-                              צור תיק פרויקט
-                            </button>
+                            <div className="space-y-1">
+                              <button
+                                type="button"
+                                onClick={() => setArchiveBriefConfirmId(item.id)}
+                                disabled={!!archiveBriefLoadingId}
+                                className="w-full inline-flex items-center justify-center gap-1.5 py-1.5 rounded-lg border border-slate-700 bg-slate-800/50 text-xs text-slate-400 hover:text-violet-300 hover:border-violet-500/40 disabled:opacity-40 transition-colors"
+                              >
+                                <BookOpen className="w-3.5 h-3.5" strokeWidth={1.5} />
+                                צור תיק פרויקט
+                              </button>
+                              <p className="text-xs text-slate-600 text-center">עד 10 פעולות ביום (משותף)</p>
+                            </div>
                           )
                         )}
                       </>

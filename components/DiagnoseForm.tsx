@@ -450,6 +450,7 @@ export default function DiagnoseForm({ onSuccess }: Props) {
           <Search className="w-5 h-5" strokeWidth={1.5} />
           אבחן את השאלה
         </button>
+        <p className="text-xs text-slate-600 text-center">הכלי מוגבל ל-10 פעולות ביום (שאלות + אבחון + תיקים)</p>
 
         {submitError && (
           <div

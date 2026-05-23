@@ -476,6 +476,7 @@ export default function GenerateForm({ onSuccess }: Props) {
           <FlaskConical className="w-5 h-5" strokeWidth={1.5} />
           צור שאלות PBL
         </button>
+        <p className="text-xs text-slate-600 text-center">הכלי מוגבל ל-10 פעולות ביום (שאלות + אבחון + תיקים)</p>
 
         {submitError && (
           <div
