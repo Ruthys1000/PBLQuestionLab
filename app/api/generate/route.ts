@@ -39,10 +39,11 @@ export async function POST(req: NextRequest) {
     const questions = await generateQuestions(input)
     const mockMode = !process.env.ANTHROPIC_API_KEY
 
+    let archiveIds: string[] = []
     if (prisma && !mockMode) {
       try {
         await ensureTable()
-        await Promise.all(questions.map(q =>
+        const saved = await Promise.all(questions.map(q =>
           prisma!.archivedQuestion.create({
             data: {
               topic: input.topic,
@@ -54,12 +55,13 @@ export async function POST(req: NextRequest) {
             },
           })
         ))
+        archiveIds = saved.map(r => r.id)
       } catch (err) {
         console.error('[generate] DB archive error (non-fatal):', err)
       }
     }
 
-    return NextResponse.json({ questions, mockMode })
+    return NextResponse.json({ questions, archiveIds, mockMode })
   } catch (err) {
     const message = err instanceof Error ? err.message : 'שגיאה לא ידועה'
     return NextResponse.json({ error: message }, { status: 500 })
