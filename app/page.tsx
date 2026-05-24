@@ -96,7 +96,7 @@ function StressTestPanel({ stressTest }: { stressTest: StressTest }) {
           <BarChart2 className="w-4 h-4 text-violet-400 shrink-0" strokeWidth={1.5} />
           <span>מבחן לחץ פדגוגי</span>
           <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${scoreColor}`}>
-            {stressTest.overall_score.toFixed(1)} / 10
+            {stressTest.overall_score.toFixed(1)}
           </span>
         </span>
         <span className="flex items-center gap-1.5 text-violet-400">
