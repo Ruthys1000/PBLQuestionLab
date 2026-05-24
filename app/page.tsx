@@ -144,8 +144,8 @@ function StressTestPanel({ stressTest }: { stressTest: StressTest }) {
 
 // ─── Step indicator ──────────────────────────────────────────────────────────
 
-const GENERATE_STEPS = ['מלא פרטים', 'בחר שאלה', 'תיק פרויקט']
-const DIAGNOSE_STEPS = ['מלא פרטים', 'תוצאות אבחון', 'תיק פרויקט']
+const GENERATE_STEPS = ['מלא פרטים', 'בחר שאלה', 'תיק הפרויקט']
+const DIAGNOSE_STEPS = ['מלא פרטים', 'תוצאות אבחון', 'תיק הפרויקט']
 
 function StepIndicator({ mode, isGenerateFlow }: { mode: AppMode; isGenerateFlow: boolean }) {
   const steps = isGenerateFlow ? GENERATE_STEPS : DIAGNOSE_STEPS
@@ -433,12 +433,12 @@ function ResultsScreen({
             {briefLoading ? (
               <>
                 <Loader2 className="w-5 h-5 animate-spin" strokeWidth={1.5} />
-                בונה תיק פרויקט...
+                בונה תיק הפרויקט...
               </>
             ) : (
               <>
                 <BookOpen className="w-5 h-5" strokeWidth={1.5} />
-                {hasBrief ? 'צור תיק חדש לשאלה זו' : 'צור תיק פרויקט לשאלה זו'}
+                {hasBrief ? 'צור תיק חדש לשאלה זו' : 'צור תיק הפרויקט לשאלה זו'}
               </>
             )}
           </button>
@@ -827,6 +827,7 @@ export default function HomePage() {
   const [deletePin, setDeletePin] = useState('')
   const [deleteError, setDeleteError] = useState<string | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
+  const [briefSource, setBriefSource] = useState<AppMode>('results')
 
   useEffect(() => {
     window.scrollTo({ top: 0 })
@@ -885,7 +886,7 @@ export default function HomePage() {
       diagnose: 'home',
       results: 'generate',
       diagnosis: 'diagnose',
-      brief: formInput !== null ? 'results' : 'diagnosis',
+      brief: briefSource,
     }
     setMode(dest[mode] ?? 'home')
   }
@@ -919,10 +920,11 @@ export default function HomePage() {
       }
       setProjectBrief(brief)
       setMockMode(m)
+      setBriefSource('results')
       setMode('brief')
       showToast('תיק הפרויקט נוצר בהצלחה!')
     } catch (err) {
-      setBriefError(err instanceof Error ? err.message : 'שגיאה ביצירת תיק פרויקט')
+      setBriefError(err instanceof Error ? err.message : 'שגיאה ביצירת תיק הפרויקט')
     } finally {
       setBriefLoading(false)
     }
@@ -951,6 +953,7 @@ export default function HomePage() {
         setProjectBrief(brief)
         setSelectedQuestion(fullData)
         setFormInput(minimalInput)
+        setBriefSource('archive')
         setMode('brief')
         showToast('תיק הפרויקט נטען מהארכיון')
         return
@@ -978,10 +981,11 @@ export default function HomePage() {
       setSelectedQuestion(fullData)
       setFormInput(minimalInput)
       setMockMode(m)
+      setBriefSource('archive')
       setMode('brief')
       showToast('תיק הפרויקט נוצר בהצלחה!')
     } catch (err) {
-      showToast(err instanceof Error ? err.message : 'שגיאה ביצירת תיק פרויקט', 'info')
+      showToast(err instanceof Error ? err.message : 'שגיאה ביצירת תיק הפרויקט', 'info')
     } finally {
       setArchiveBriefLoadingId(null)
     }
@@ -1049,11 +1053,11 @@ export default function HomePage() {
                 PBL Question Lab
               </h1>
               <p className="text-xl md:text-2xl font-semibold text-white leading-relaxed">
-                שאלות PBL — עם ניקוד, משוב ותיק פרויקט.
+                שאלות PBL — עם ניקוד, משוב ותיק הפרויקט.
               </p>
               <p className="text-base text-slate-400 leading-relaxed max-w-xl mx-auto">
                 כלי AI למורים, מרצים ומנהלי למידה. כותבים נושא, כיתה ומקצועות —
-                ומקבלים שאלה מנחה בין-תחומית עם ניקוד פדגוגי, משוב ספציפי ותיק פרויקט מוכן לשימוש.
+                ומקבלים שאלה מנחה בין-תחומית עם ניקוד פדגוגי, משוב ספציפי ותיק הפרויקט מוכן לשימוש.
               </p>
             </div>
           </div>
@@ -1065,7 +1069,7 @@ export default function HomePage() {
               {[
                 { num: 1, title: 'מלא פרטים', desc: 'נושא, כיתה, מקצועות, רמת אתגר' },
                 { num: 2, title: 'קבל שאלה מנחה', desc: 'עם ניקוד ב-10 קריטריונים PBL' },
-                { num: 3, title: 'תיק פרויקט מלא', desc: 'שלבי חקירה, רובריקה ומטרות' },
+                { num: 3, title: 'תיק הפרויקט המלא', desc: 'שלבי חקירה, רובריקה ומטרות' },
               ].map((step, i) => (
                 <div key={step.num} className="flex items-start">
                   {i > 0 && (
@@ -1138,7 +1142,7 @@ export default function HomePage() {
               <ul className="space-y-2.5">
                 {[
                   'מה בדיוק חזק בשאלה — ומה פוגע בלמידה',
-                  'מה יקרה בכיתה אם תשתמשי בה כפי שהיא',
+                  'מה יקרה בכיתה אם תשתמש בה כפי שהיא',
                   'הנחיה ברורה לאן לכתוב מחדש',
                   '2 גרסאות משופרות עם הסבר מה השתנה',
                 ].map((item) => (
@@ -1160,13 +1164,13 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Card 3 — תיק פרויקט */}
+            {/* Card 3 — תיק הפרויקט */}
             <div className="bg-slate-900 border border-cyan-500/20 rounded-xl p-5 space-y-4">
               <div className="flex items-center gap-2.5">
                 <div className="p-2 rounded-lg bg-cyan-500/10 shrink-0">
                   <BookOpen className="w-4 h-4 text-cyan-400" strokeWidth={1.5} />
                 </div>
-                <h3 className="text-sm font-bold text-white">תיק פרויקט מלא</h3>
+                <h3 className="text-sm font-bold text-white">תיק הפרויקט המלא</h3>
               </div>
               <ul className="space-y-2.5">
                 {[
@@ -1194,31 +1198,37 @@ export default function HomePage() {
           </div>
 
           {/* CTAs */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center pb-4">
-            <button
-              type="button"
-              onClick={() => setMode('generate')}
-              className="inline-flex items-center gap-2 justify-center px-8 py-4 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-base font-semibold shadow-lg shadow-violet-500/25 transition-all duration-150"
-            >
-              <FlaskConical className="w-5 h-5" strokeWidth={1.5} />
-              צור שאלות PBL
-            </button>
-            <button
-              type="button"
-              onClick={() => setMode('diagnose')}
-              className="inline-flex items-center gap-2 justify-center px-8 py-4 rounded-xl bg-slate-800 border border-slate-700 text-slate-200 text-base font-medium hover:border-violet-500/50 hover:text-white transition-all duration-150"
-            >
-              <Search className="w-5 h-5" strokeWidth={1.5} />
-              אבחן שאלה קיימת
-            </button>
-            <button
-              type="button"
-              onClick={() => setMode('archive')}
-              className="inline-flex items-center gap-2 justify-center px-8 py-4 rounded-xl bg-slate-800 border border-slate-700 text-slate-200 text-base font-medium hover:border-cyan-500/50 hover:text-white transition-all duration-150"
-            >
-              <Archive className="w-5 h-5" strokeWidth={1.5} />
-              ארכיון שאלות
-            </button>
+          <div className="space-y-3">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <button
+                type="button"
+                onClick={() => setMode('generate')}
+                className="inline-flex items-center gap-2 justify-center px-8 py-4 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-base font-semibold shadow-lg shadow-violet-500/25 transition-all duration-150"
+              >
+                <FlaskConical className="w-5 h-5" strokeWidth={1.5} />
+                צור שאלות PBL
+              </button>
+              <button
+                type="button"
+                onClick={() => setMode('diagnose')}
+                className="inline-flex items-center gap-2 justify-center px-8 py-4 rounded-xl bg-slate-800 border border-slate-700 text-slate-200 text-base font-medium hover:border-violet-500/50 hover:text-white transition-all duration-150"
+              >
+                <Search className="w-5 h-5" strokeWidth={1.5} />
+                אבחן שאלה קיימת
+              </button>
+              <button
+                type="button"
+                onClick={() => setMode('archive')}
+                className="inline-flex items-center gap-2 justify-center px-8 py-4 rounded-xl bg-slate-800 border border-slate-700 text-slate-200 text-base font-medium hover:border-cyan-500/50 hover:text-white transition-all duration-150"
+              >
+                <Archive className="w-5 h-5" strokeWidth={1.5} />
+                ארכיון שאלות
+              </button>
+            </div>
+            <p className="text-center text-xs text-slate-500 pb-4">
+              <Archive className="w-3.5 h-3.5 inline-block align-text-bottom ml-1" strokeWidth={1.5} />
+              השאלות ותיק הפרויקט שתיצור נשמרים אוטומטית בארכיון
+            </p>
           </div>
 
         </div>
@@ -1422,11 +1432,11 @@ export default function HomePage() {
                               className="w-full inline-flex items-center justify-center gap-1.5 py-1.5 rounded-lg border border-cyan-800/50 bg-cyan-950/30 text-xs text-cyan-400 hover:bg-cyan-900/40 disabled:opacity-40 transition-colors"
                             >
                               <BookOpen className="w-3.5 h-3.5" strokeWidth={1.5} />
-                              פתח תיק פרויקט שמור
+                              פתח תיק הפרויקט השמור
                             </button>
                           ) : archiveBriefConfirmId === item.id ? (
                             <div className="space-y-1.5">
-                              <p className="text-xs text-amber-400 text-center">ליצור תיק פרויקט לשאלה זו?</p>
+                              <p className="text-xs text-amber-400 text-center">ליצור תיק הפרויקט לשאלה זו?</p>
                               <div className="flex gap-2">
                                 <button
                                   type="button"
@@ -1457,7 +1467,7 @@ export default function HomePage() {
                                 className="w-full inline-flex items-center justify-center gap-1.5 py-1.5 rounded-lg border border-slate-700 bg-slate-800/50 text-xs text-slate-400 hover:text-violet-300 hover:border-violet-500/40 disabled:opacity-40 transition-colors"
                               >
                                 <BookOpen className="w-3.5 h-3.5" strokeWidth={1.5} />
-                                צור תיק פרויקט
+                                צור תיק הפרויקט
                               </button>
                               <p className="text-xs text-slate-600 text-center">עד 10 פעולות ביום (משותף)</p>
                             </div>
@@ -1588,18 +1598,18 @@ export default function HomePage() {
                 regenerateLoading={regenerateLoading}
                 regenerateError={regenerateError}
                 hasBrief={projectBrief !== null}
-                onGoToBrief={() => setMode('brief')}
+                onGoToBrief={() => { setBriefSource('results'); setMode('brief') }}
               />
             ) : (
               <div className="text-center py-8 space-y-3">
-                <p className="text-slate-400 text-sm">לא הוחזרו שאלות. נסי שוב.</p>
+                <p className="text-slate-400 text-sm">לא הוחזרו שאלות. נסה שוב.</p>
                 <button
                   type="button"
                   onClick={() => void handleGenerateAgain()}
                   className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-700 text-sm text-slate-300 hover:border-slate-500 hover:text-white transition-colors"
                 >
                   <RefreshCw className="w-4 h-4" strokeWidth={1.5} />
-                  נסי שנית
+                  נסה שנית
                 </button>
               </div>
             )}
@@ -1620,7 +1630,7 @@ export default function HomePage() {
         {mode === 'brief' && projectBrief && selectedQuestion && (
           <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6 md:p-8">
             <div className="pb-4 border-b border-slate-800 mb-6 flex items-center justify-between no-print">
-              <h2 className="text-lg font-bold text-white">תיק פרויקט</h2>
+              <h2 className="text-lg font-bold text-white">תיק הפרויקט</h2>
               <button
                 type="button"
                 onClick={() => window.print()}
