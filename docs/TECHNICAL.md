@@ -42,7 +42,7 @@ PBLQuestionLab/
 │       ├── brief/route.ts        # POST /api/brief — תיק פרויקט
 │       ├── archive/route.ts      # GET /api/archive — רשימת שאלות שמורות
 │       ├── archive/[id]/route.ts # DELETE /api/archive/[id] — מחיקת שאלה
-│       └── seed/route.ts         # POST /api/seed — זריעת נתוני דוגמה
+│       └── seed/route.ts         # GET /api/seed — זריעת נתוני דוגמה
 │
 ├── components/
 │   ├── GenerateForm.tsx          # טופס יצירת שאלות (validation, localStorage)
@@ -52,6 +52,7 @@ PBLQuestionLab/
 ├── lib/
 │   ├── anthropic.ts              # server-only: קריאות Claude + retry + mock fallback
 │   ├── apiClient.ts              # client-side: fetch wrappers עם timeout
+│   ├── dailyLimit.ts             # server-only: מגבלה יומית — 10 בקשות/IP/יום
 │   ├── db.ts                     # server-only: PrismaClient singleton + ensureTable()
 │   ├── prompts.ts                # System prompts ל-Claude (שלושה)
 │   └── mockData.ts               # נתוני דוגמה למצב הדגמה
@@ -60,6 +61,7 @@ PBLQuestionLab/
 │   └── schema.prisma             # סכמת DB — מודל ArchivedQuestion בלבד
 │
 ├── types.ts                      # כל ממשקי TypeScript
+├── prisma.config.ts              # תצורת Prisma (סכמה, migrations, DB URL)
 ├── docs/
 │   └── TECHNICAL.md              # מסמך זה
 ├── README.md                     # תיאור קונספטואלי + התחלה מהירה
@@ -407,6 +409,27 @@ ArchiveScreen (client)
 
 ---
 
+### `GET /api/seed`
+
+**תיאור:** מוסיף 3 שאלות דוגמה לארכיון — רק אם הארכיון ריק לחלוטין. בטוח לקריאה חוזרת.
+
+**בקשה:** ללא גוף, ללא פרמטרים.
+
+**תגובה מוצלחת (200):**
+```typescript
+{ "message": "נוספו 3 שאלות דוגמה לארכיון." }
+// או אם הארכיון כבר מכיל שאלות:
+{ "message": "הארכיון כבר מכיל X שאלות — לא נוספו דוגמאות." }
+```
+
+**שגיאות:**
+| קוד | סיבה |
+|-----|------|
+| 503 | אין חיבור DB (`DATABASE_URL` לא מוגדר) |
+| 500 | שגיאת DB |
+
+---
+
 ### `DELETE /api/archive/[id]`
 
 **בקשה:**
@@ -431,7 +454,9 @@ ArchiveScreen (client)
 
 ## Rate Limiting
 
-מנגנון מגבלת קצב פשוט מבוסס זיכרון — ללא Redis, ללא שירות חיצוני.
+שני מנגנוני מגבלה פועלים במקביל — שניהם מבוססי זיכרון, ללא Redis, ללא שירות חיצוני.
+
+### מגבלה לדקה (per-minute)
 
 **מימוש** (חוזר בכל אחד משלושת ה-routes שמייצרים תוכן):
 ```typescript
@@ -453,6 +478,30 @@ function checkRateLimit(ip: string): boolean {
 **מגבלה:** 3 בקשות לדקה לכל IP (`x-forwarded-for` header מה-reverse proxy).  
 **מה קורה בחריגה:** HTTP 429 + `"יותר מדי בקשות — נסה שוב בעוד דקה"`.  
 **חיי ה-Map:** מאופסת עם כל הפעלה מחדש של השרת (מתאים לפריסה בודדת).
+
+### מגבלה יומית (daily limit) — `lib/dailyLimit.ts`
+
+```typescript
+const dailyLimitMap = new Map<string, { count: number; date: string }>()
+export const DAILY_LIMIT = 10
+
+export function checkDailyLimit(ip: string): boolean {
+  const today = new Date().toISOString().slice(0, 10)
+  const entry = dailyLimitMap.get(ip)
+  if (!entry || entry.date !== today) {
+    dailyLimitMap.set(ip, { count: 1, date: today })
+    return true
+  }
+  if (entry.count >= DAILY_LIMIT) return false
+  entry.count++
+  return true
+}
+```
+
+**מגבלה:** 10 בקשות ליום קלנדרי (UTC) לכל IP.  
+**חלה על:** `/api/generate`, `/api/diagnose`, `/api/brief`.  
+**מה קורה בחריגה:** HTTP 429.  
+**איפוס:** אוטומטי בחצות UTC — כשהתאריך משתנה הספירה מתאפסת.
 
 ---
 
