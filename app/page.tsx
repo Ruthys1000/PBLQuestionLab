@@ -1142,7 +1142,7 @@ export default function HomePage() {
               <ul className="space-y-2.5">
                 {[
                   'מה בדיוק חזק בשאלה — ומה פוגע בלמידה',
-                  'מה יקרה בכיתה אם תשתמשי בה כפי שהיא',
+                  'מה יקרה בכיתה אם תשתמש בה כפי שהיא',
                   'הנחיה ברורה לאן לכתוב מחדש',
                   '2 גרסאות משופרות עם הסבר מה השתנה',
                 ].map((item) => (
@@ -1602,14 +1602,14 @@ export default function HomePage() {
               />
             ) : (
               <div className="text-center py-8 space-y-3">
-                <p className="text-slate-400 text-sm">לא הוחזרו שאלות. נסי שוב.</p>
+                <p className="text-slate-400 text-sm">לא הוחזרו שאלות. נסה שוב.</p>
                 <button
                   type="button"
                   onClick={() => void handleGenerateAgain()}
                   className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-700 text-sm text-slate-300 hover:border-slate-500 hover:text-white transition-colors"
                 >
                   <RefreshCw className="w-4 h-4" strokeWidth={1.5} />
-                  נסי שנית
+                  נסה שנית
                 </button>
               </div>
             )}
