@@ -1227,7 +1227,7 @@ export default function HomePage() {
             </div>
             <p className="text-center text-xs text-slate-500 pb-4">
               <Archive className="w-3.5 h-3.5 inline-block align-text-bottom ml-1" strokeWidth={1.5} />
-              כל השאלות שתיצרי נשמרות אוטומטית בארכיון
+              כל השאלות שתיצר נשמרות אוטומטית בארכיון
             </p>
           </div>
 
