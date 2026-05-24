@@ -18,6 +18,7 @@ import {
   BarChart2,
   Archive,
   Trash2,
+  Link2,
 } from 'lucide-react'
 import type {
   AppMode,
@@ -828,10 +829,26 @@ export default function HomePage() {
   const [deleteError, setDeleteError] = useState<string | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [briefSource, setBriefSource] = useState<AppMode>('results')
+  const [highlightedId, setHighlightedId] = useState<string | null>(null)
+  const [copiedId, setCopiedId] = useState<string | null>(null)
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const qId = params.get('q')
+    if (qId) { setMode('archive'); setHighlightedId(qId) }
+    else if (params.has('archive')) { setMode('archive') }
+  }, [])
 
   useEffect(() => {
     window.scrollTo({ top: 0 })
   }, [mode])
+
+  useEffect(() => {
+    if (!highlightedId || archiveLoading) return
+    setTimeout(() => {
+      document.getElementById(`archive-item-${highlightedId}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }, 100)
+  }, [highlightedId, archiveLoading])
 
   useEffect(() => {
     if (mode !== 'archive') return
@@ -878,6 +895,12 @@ export default function HomePage() {
     setBriefMsgIdx(0)
     setRegenerateLoading(false)
     setRegenerateError(null)
+  }
+
+  function copyLink(text: string, id: string) {
+    void navigator.clipboard.writeText(text)
+    setCopiedId(id)
+    setTimeout(() => setCopiedId(null), 2000)
   }
 
   function goBack() {
@@ -1273,6 +1296,14 @@ export default function HomePage() {
               <ChevronLeft className="w-4 h-4" strokeWidth={1.5} />
               חזור לדף הבית
             </button>
+            <button
+              type="button"
+              onClick={() => copyLink(window.location.origin + '?archive', 'archive')}
+              className="inline-flex items-center gap-1.5 text-sm text-slate-400 hover:text-white transition-colors"
+            >
+              <Link2 className="w-4 h-4" strokeWidth={1.5} />
+              {copiedId === 'archive' ? 'הועתק!' : 'שתף ארכיון'}
+            </button>
           </div>
 
           <div className="text-center space-y-2">
@@ -1361,7 +1392,8 @@ export default function HomePage() {
                 return (
                   <div
                     key={item.id}
-                    className="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-3 hover:border-slate-700 transition-colors"
+                    id={`archive-item-${item.id}`}
+                    className={`bg-slate-900 border rounded-xl p-4 space-y-3 transition-colors ${highlightedId === item.id ? 'border-amber-400/60 shadow-lg shadow-amber-400/10' : 'border-slate-800 hover:border-slate-700'}`}
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="space-y-0.5 min-w-0">
@@ -1372,6 +1404,16 @@ export default function HomePage() {
                         <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${scoreColor}`}>
                           {item.overall_score.toFixed(1)}
                         </span>
+                        <button
+                          type="button"
+                          onClick={() => copyLink(window.location.origin + '?q=' + item.id, item.id)}
+                          className="p-1 rounded text-slate-600 hover:text-cyan-400 transition-colors"
+                          aria-label="העתק קישור לשאלה"
+                        >
+                          {copiedId === item.id
+                            ? <Check className="w-3.5 h-3.5 text-cyan-400" strokeWidth={1.5} />
+                            : <Link2 className="w-3.5 h-3.5" strokeWidth={1.5} />}
+                        </button>
                         <button
                           type="button"
                           onClick={() => { setDeletingId(item.id); setDeletePin(''); setDeleteError(null); setArchiveBriefConfirmId(null) }}
