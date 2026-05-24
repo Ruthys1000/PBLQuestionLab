@@ -1064,6 +1064,18 @@ export default function HomePage() {
       <main id="main-content" className="min-h-screen bg-slate-950 flex flex-col items-center px-6 py-16">
         <div className="w-full max-w-4xl space-y-14">
 
+          {/* Archive shortcut */}
+          <div className="flex justify-end">
+            <button
+              type="button"
+              onClick={() => setMode('archive')}
+              className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-white transition-colors"
+            >
+              <Archive className="w-4 h-4" strokeWidth={1.5} />
+              ארכיון
+            </button>
+          </div>
+
           {/* Hero */}
           <div className="text-center space-y-6">
             <div className="flex justify-center">
@@ -1555,6 +1567,14 @@ export default function HomePage() {
           </button>
 
           <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setMode('archive')}
+              className="inline-flex items-center gap-1.5 text-sm text-slate-400 hover:text-white transition-colors"
+            >
+              <Archive className="w-4 h-4" strokeWidth={1.5} />
+              ארכיון
+            </button>
             {mode === 'brief' && (
               <button
                 type="button"
